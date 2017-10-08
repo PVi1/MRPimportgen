@@ -1,2 +1,2 @@
 # MRPimportgen
-Par skriptov na iport to MRP z inych programov
+Par skriptov na import do MRP z inych programov
