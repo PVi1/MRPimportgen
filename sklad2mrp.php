@@ -1,5 +1,4 @@
 <?php
-include_once 'pscextract.php';
 
 function sklad_generate_txt(){
     
@@ -9,9 +8,6 @@ function sklad_generate_txt(){
 $db_adresy = dbase_open($target_dir.'adresy.DBF', 0) or die("Error! Could not open dbase database file.");
 $db2 = dbase_open($target_dir.'fakodb.DBF', 0) or die("Error! Could not open dbase database file.");
 $db3 = dbase_open($target_dir.'fotext.DBF', 0) or die("Error! Could not open dbase database file.");
-
-//adresy
-echo '<pre>';
 
 if ($db_adresy) {
    // $adresy_mrp = array();
