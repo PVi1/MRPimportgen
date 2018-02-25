@@ -245,4 +245,5 @@ if (isset($_POST['generuj_sklad2007'])) {
                                 </html>
 <?php
 }
+
 ?>
