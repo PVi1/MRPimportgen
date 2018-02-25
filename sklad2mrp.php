@@ -2,23 +2,6 @@
 
 //session_start();
 
- function rrmdir($dir) { 
-   if (is_dir($dir)) { 
-     $objects = scandir($dir); 
-     foreach ($objects as $object) { 
-       if ($object != "." && $object != "..") { 
-         if (is_dir($dir."/".$object)){
-           rrmdir($dir."/".$object);
-         }
-         else if(stripos($object, "mrp_import.zip")===false){
-           unlink($dir."/".$object); 
-         }
-       } 
-     }
-     rmdir($dir); 
-   } 
- }
-
 function clean_mrp_files($sess_id){
     
     if(strlen($sess_id)>0 && is_dir("downloads/" . $sess_id . '/')){
@@ -333,7 +316,8 @@ function sklad_generate_txt() {
                 $faktury_mrp[$i]["datum_vystavenia"] = str_pad(date_format($dat_vyst, 'd.m.Y'), 10);
             } else {
 //poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["dovod"] = "Nespravny datum vystavenia - ".$row['DATODESL'];
                 unset($faktury_mrp[$i]);
             }
             $dat_zdanpov = date_create_from_format('Ymd', $row['DATPOVFAK']);
@@ -341,7 +325,8 @@ function sklad_generate_txt() {
                 $faktury_mrp[$i]["datum_danpov"] = str_pad(date_format($dat_zdanpov, 'd.m.Y'), 10);
             } else {
 //poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["dovod"] = "Nespravny datum danovej povinnosti - ". $row['DATPOVFAK'];
                 unset($faktury_mrp[$i]);
             }
             $dat_splat = date_create_from_format('Ymd', $row['DATSPL']);
@@ -349,7 +334,8 @@ function sklad_generate_txt() {
                 $faktury_mrp[$i]["datum_splat"] = str_pad(date_format($dat_splat, 'd.m.Y'), 10);
             } else {
 //poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["dovod"] = "Nespravny datum splatnosti - ". $row['DATSPL'];                
                 unset($faktury_mrp[$i]);
             }
             $faktury_mrp[$i]["var_symbol"] = str_pad(trim($row['CISFAK']), 10);
@@ -363,7 +349,8 @@ function sklad_generate_txt() {
                 $faktury_mrp[$i]["datum_obj"] = str_pad(date_format($dat_obj, 'd.m.Y'), 10);
             } else {
 //poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["dovod"] = "Nespravny datum objednavky - ". $row['DATOBJ'];
                 unset($faktury_mrp[$i]);
             }
             $faktury_mrp[$i]["prikaz_uhr"] = "0";
@@ -390,7 +377,8 @@ function sklad_generate_txt() {
                 $faktury_mrp[$i]["dat_dodania"] = str_pad(date_format($dat_dod, 'd.m.Y'), 10);
             } else {
 //poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
+                $nespracovane_fa[]["dovod"] = "Nespravny datum dodania - ". $row['DATPOVFAK'];
                 unset($faktury_mrp[$i]);
             }
             $faktury_mrp[$i]["text"] = str_pad(" ", 30);
@@ -463,8 +451,7 @@ function sklad_generate_txt() {
     if (count($nespracovane_fa) > 0) {
         $ffaktury = fopen($destdir . "/FNespracovane.txt", "w");
         foreach ($nespracovane_fa as $nesp_faktura) {
-            fwrite($ffaktury, $nesp_faktura);
-            fwrite($ffaktury, "\n");
+            fwrite($ffaktury, "Cislo FA: ".$nesp_faktura["cislo"]. " Dovod: ".$nesp_faktura["dovod"]."\n");           
         }
         fclose($ffaktury);       
         $cesta_flag = build_archive($sess_id);
