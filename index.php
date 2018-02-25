@@ -95,13 +95,20 @@ if (isset($_POST['generuj_sklad2007'])) {
 
         //2. spracovat obsah a vytvorit txt
         require_once('sklad2mrp.php');
-        sklad_generate_txt();
+        $res = sklad_generate_txt();
 
         //3.vycisti po sebe
         $ffiles=array("adresy.DBF","fakodb.DBF","fotext.DBF");
         clean_tmp($ffiles);
         
         //4. vrati txt do browseru na ulozenie
+        if($res[0]==0){
+            echo "<h3>Konverzia prebehla úspešne.</h3>";
+        }
+        else {
+            echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
+        }
+        echo "<p>Súbor s dátami pre import stiahnete <a href=\"downloads/". session_id()."/"."mrp_import.zip\">tu</a>";
     } else {
         die('Nenahrali ste všetky požadované súbory');
     }
@@ -161,8 +168,7 @@ if (isset($_POST['generuj_sklad2007'])) {
             </header>
             <form method="post" target="index.php" enctype="multipart/form-data">
                 <div class="w3-row-padding w3-margin-bottom">
-                    <div class="w3-threequarter">
-                        <?php echo  "sess:".session_id(); ?>
+                    <div class="w3-threequarter">                        
                         <h4>Pre vygenerovanie súborov pre import do MRP priložte nasledovné súbory</h4>
                         <p>Súbor s adresami (adresy.DBF): <input type="file" name="f_adresy" id="f_adresy"></input><i id="sf_adresy" aria-hidden="true" class="fa fa-square-o"></i></p>
                         <p>Súbor s vystavenými faktúrami (fakodb.DBF): <input type="file" name="f_fakodb" id="f_fakodb"></input><i id="sf_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
