@@ -1,8 +1,9 @@
 <?php
 
 function sec_file_upload($f_name, $ext) {
+    $sess_id = session_id();
     $target_dir = "tmp_uploads/";
-    $target_file = $target_dir . basename($_FILES[$f_name]["name"]);
+    $target_file = $target_dir . $sess_id . '_' . basename($_FILES[$f_name]["name"]);
     $extension = pathinfo($target_file, PATHINFO_EXTENSION);
 
     if (strpos($_FILES[$f_name]["name"], '/') || strpos($_FILES[$f_name]["name"], '\\')) {
