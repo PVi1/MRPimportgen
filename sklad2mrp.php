@@ -129,132 +129,132 @@ function sklad_generate_txt() {
 //    }
     }
 
-    if ($db_prijate_fa) {
-
-// $nespracovane_fa = array();
-//        /*
-//         * echo "<pre><br>faktury<br>";
-//         
-//        $column_info = dbase_get_header_info($db_vydane_fa);
-//        nl2br(print_r($column_info));
-//        echo "<br>polozky<br>";
-//        $column_info = dbase_get_header_info($db_vydane_fa_pol);
-//        nl2br(print_r($column_info));
-//        */
+//    if ($db_prijate_fa) {
 //
-        $record_numbers = dbase_numrecords($db_vydane_fa);
-        for ($i = 1; $i <= $record_numbers; $i++) {
-            $row = dbase_get_record_with_names($db_vydane_fa, $i);
-            print_r($row);
-        }
-// $adresy_mrp = array();
-
-        $record_numbers = dbase_numrecords($db_vydane_fa);
-
-        for ($i = 1; $i <= $record_numbers; $i++) {
-            $row = dbase_get_record_with_names($db_vydane_fa, $i);
-            $faktury_mrp[$i]["druh"] = str_pad(trim($row['DRUH']), 1);
-            $faktury_mrp[$i]["cislo"] = str_pad(trim($row['CISFAK']), 10);
-            $faktury_mrp[$i]["odb_ico"] = str_pad(trim($row['ICO']), 12);
-            if (trim($row['DPH']) <> 0) {
-                $druh_dph = 40;
-            } else {
-                $druh_dph = 39;
-            }
-            $faktury_mrp[$i]["typy_dph"] = str_pad($druh_dph, 3);
-            $faktury_mrp[$i]["zaklad_bez_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["zaklad_nizke_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["zaklad_zakladne_dph"] = str_pad(trim($row['CENA']), 14);
-            $faktury_mrp[$i]["zaklad_mimo_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["suma_nizke_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["suma_zaklad_dph"] = str_pad(trim($row['DPH']), 14);
-            $faktury_mrp[$i]["mimo_eu_zaklad_nizke_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["mimo_eu_zaklad_zaklad_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["suma_mimo_eu_zaklad_nizke_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["suma_mimo_eu_zaklad_zaklad_dph"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["suma_uhrad"] = str_pad("0,00", 14);
-            $faktury_mrp[$i]["cislo_dod_list"] = str_pad("0,00", 10);
-//konverzia datumu z rmd na d.m.r            
-            $dat_vyst = date_create_from_format('Ymd', $row['DATODESL']);
-            if ($dat_vyst) {
-                $faktury_mrp[$i]["datum_vystavenia"] = str_pad(date_format($dat_vyst, 'd.m.Y'), 10);
-            } else {
-//poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
-                unset($faktury_mrp[$i]);
-            }
-            $dat_zdanpov = date_create_from_format('Ymd', $row['DATPOVFAK']);
-            if ($dat_zdanpov) {
-                $faktury_mrp[$i]["datum_danpov"] = str_pad(date_format($dat_zdanpov, 'd.m.Y'), 10);
-            } else {
-//poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
-                unset($faktury_mrp[$i]);
-            }
-            $dat_splat = date_create_from_format('Ymd', $row['DATSPL']);
-            if ($dat_splat) {
-                $faktury_mrp[$i]["datum_splat"] = str_pad(date_format($dat_splat, 'd.m.Y'), 10);
-            } else {
-//poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
-                unset($faktury_mrp[$i]);
-            }
-            $faktury_mrp[$i]["var_symbol"] = str_pad(trim($row['CISFAK']), 10);
-            $faktury_mrp[$i]["konst_symbol"] = str_pad(trim($row['KONSYM']), 8);
-            $faktury_mrp[$i]["stredisko"] = str_pad(trim($row['STREDISKO']), 6);
-            $faktury_mrp[$i]["forma_uhr"] = str_pad(trim($row['UHRADA']), 10);
-            $faktury_mrp[$i]["sposob_dopr"] = str_pad(trim($row['DOPRAVA']), 10);
-            $faktury_mrp[$i]["obj_cislo"] = str_pad(" ", 20);
-            $dat_obj = date_create_from_format('Ymd', $row['DATOBJ']);
-            if ($dat_obj) {
-                $faktury_mrp[$i]["datum_obj"] = str_pad(date_format($dat_obj, 'd.m.Y'), 10);
-            } else {
-//poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
-                unset($faktury_mrp[$i]);
-            }
-            $faktury_mrp[$i]["prikaz_uhr"] = "0";
-            $faktury_mrp[$i]["mena"] = str_pad(trim($row['MENA']), 6);
-            $faktury_mrp[$i]["kurz_zahr"] = str_pad(trim($row['KURZ']), 13);
-            $faktury_mrp[$i]["kurz_dom"] = str_pad("0.00", 13);
-            $faktury_mrp[$i]["cvv"] = str_pad("0", 3);
-            $faktury_mrp[$i]["cislo_plat_karty"] = str_pad("0", 20);
-            $faktury_mrp[$i]["typ_dokl"] = str_pad("", 2);
-            $faktury_mrp[$i]["cislo_predf"] = str_pad(trim($row['PROFORMA']), 10);
-            $faktury_mrp[$i]["cislo_zak"] = str_pad(" ", 15);
-            $faktury_mrp[$i]["suma_zahr"] = str_pad("0.00", 14);
-            $faktury_mrp[$i]["zauctovane"] = "F";
-            $faktury_mrp[$i]["ico_prij"] = str_pad(trim($row['ICOPRIJ']), 12);
-            $faktury_mrp[$i]["id_fak"] = str_pad("", 10);
-            $faktury_mrp[$i]["id_banka"] = str_pad("", 4);
-            $faktury_mrp[$i]["suma_uhrad_zahr_mena"] = str_pad("0.00", 14);
-            $faktury_mrp[$i]["hmotnost"] = str_pad(" ", 10);
-            $faktury_mrp[$i]["dat_dodania"] = str_pad(trim($row['DATPOVFAK']), 10);
-            $faktury_mrp[$i]["text"] = str_pad(" ", 30);
-            $faktury_mrp[$i]["poznamka"] = str_pad(" ", 30);
-//blbosti v zahranicnej mene
-            $faktury_mrp[$i]["zahr_mena_dph_blbosti"] = str_pad(" ", 110);
-            $faktury_mrp[$i]["recykl"] = str_pad("0", 9);
-            $faktury_mrp[$i]["pocet_des_pol"] = "2";
-            $faktury_mrp[$i]["ciast_s_dph"] = "F";
-            $faktury_mrp[$i]["prepoc_pol"] = "T";
-            $faktury_mrp[$i]["spec_symb"] = str_pad(" ", 10);
-            $faktury_mrp[$i]["pov_cis_fak"] = str_pad(" ", 32);
-            $faktury_mrp[$i]["dat_dodania_tov_sluz"] = str_pad(" ", 10);
-            $faktury_mrp[$i]["znizeny_odpocet"] = str_pad(" ", 28);
-            $faktury_mrp[$i]["plny_odpocet"] = "T";
-            $faktury_mrp[$i]["cislo_zdroj_dokl"] = str_pad(trim($row['PUVDANDOK']), 32);
-        }
-//zapis do suboru
-
-        $ffaktury = fopen($destdir . "/FpImp.txt", "w");
-        foreach ($faktury_mrp as $faktura) {
-            fwrite($ffaktury, implode("", $faktura));
-            fwrite($ffaktury, "\n");
-        }
-        fclose($ffaktury);
-        dbase_close($db_prijate_fa);
-    }
+//// $nespracovane_fa = array();
+////        /*
+////         * echo "<pre><br>faktury<br>";
+////         
+////        $column_info = dbase_get_header_info($db_vydane_fa);
+////        nl2br(print_r($column_info));
+////        echo "<br>polozky<br>";
+////        $column_info = dbase_get_header_info($db_vydane_fa_pol);
+////        nl2br(print_r($column_info));
+////        */
+////
+//        $record_numbers = dbase_numrecords($db_vydane_fa);
+//        for ($i = 1; $i <= $record_numbers; $i++) {
+//            $row = dbase_get_record_with_names($db_vydane_fa, $i);
+//            print_r($row);
+//        }
+//// $adresy_mrp = array();
+//
+//        $record_numbers = dbase_numrecords($db_vydane_fa);
+//
+//        for ($i = 1; $i <= $record_numbers; $i++) {
+//            $row = dbase_get_record_with_names($db_vydane_fa, $i);
+//            $faktury_mrp[$i]["druh"] = str_pad(trim($row['DRUH']), 1);
+//            $faktury_mrp[$i]["cislo"] = str_pad(trim($row['CISFAK']), 10);
+//            $faktury_mrp[$i]["odb_ico"] = str_pad(trim($row['ICO']), 12);
+//            if (trim($row['DPH']) <> 0) {
+//                $druh_dph = 40;
+//            } else {
+//                $druh_dph = 39;
+//            }
+//            $faktury_mrp[$i]["typy_dph"] = str_pad($druh_dph, 3);
+//            $faktury_mrp[$i]["zaklad_bez_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["zaklad_nizke_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["zaklad_zakladne_dph"] = str_pad(trim($row['CENA']), 14);
+//            $faktury_mrp[$i]["zaklad_mimo_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["suma_nizke_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["suma_zaklad_dph"] = str_pad(trim($row['DPH']), 14);
+//            $faktury_mrp[$i]["mimo_eu_zaklad_nizke_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["mimo_eu_zaklad_zaklad_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["suma_mimo_eu_zaklad_nizke_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["suma_mimo_eu_zaklad_zaklad_dph"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["suma_uhrad"] = str_pad("0,00", 14);
+//            $faktury_mrp[$i]["cislo_dod_list"] = str_pad("0,00", 10);
+////konverzia datumu z rmd na d.m.r            
+//            $dat_vyst = date_create_from_format('Ymd', $row['DATODESL']);
+//            if ($dat_vyst) {
+//                $faktury_mrp[$i]["datum_vystavenia"] = str_pad(date_format($dat_vyst, 'd.m.Y'), 10);
+//            } else {
+////poznac cislo FA ktora sa nesparsovala
+//                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+//                unset($faktury_mrp[$i]);
+//            }
+//            $dat_zdanpov = date_create_from_format('Ymd', $row['DATPOVFAK']);
+//            if ($dat_zdanpov) {
+//                $faktury_mrp[$i]["datum_danpov"] = str_pad(date_format($dat_zdanpov, 'd.m.Y'), 10);
+//            } else {
+////poznac cislo FA ktora sa nesparsovala
+//                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+//                unset($faktury_mrp[$i]);
+//            }
+//            $dat_splat = date_create_from_format('Ymd', $row['DATSPL']);
+//            if ($dat_splat) {
+//                $faktury_mrp[$i]["datum_splat"] = str_pad(date_format($dat_splat, 'd.m.Y'), 10);
+//            } else {
+////poznac cislo FA ktora sa nesparsovala
+//                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+//                unset($faktury_mrp[$i]);
+//            }
+//            $faktury_mrp[$i]["var_symbol"] = str_pad(trim($row['CISFAK']), 10);
+//            $faktury_mrp[$i]["konst_symbol"] = str_pad(trim($row['KONSYM']), 8);
+//            $faktury_mrp[$i]["stredisko"] = str_pad(trim($row['STREDISKO']), 6);
+//            $faktury_mrp[$i]["forma_uhr"] = str_pad(trim($row['UHRADA']), 10);
+//            $faktury_mrp[$i]["sposob_dopr"] = str_pad(trim($row['DOPRAVA']), 10);
+//            $faktury_mrp[$i]["obj_cislo"] = str_pad(" ", 20);
+//            $dat_obj = date_create_from_format('Ymd', $row['DATOBJ']);
+//            if ($dat_obj) {
+//                $faktury_mrp[$i]["datum_obj"] = str_pad(date_format($dat_obj, 'd.m.Y'), 10);
+//            } else {
+////poznac cislo FA ktora sa nesparsovala
+//                $nespracovane_fa[] = $faktury_mrp[$i]["cislo"];
+//                unset($faktury_mrp[$i]);
+//            }
+//            $faktury_mrp[$i]["prikaz_uhr"] = "0";
+//            $faktury_mrp[$i]["mena"] = str_pad(trim($row['MENA']), 6);
+//            $faktury_mrp[$i]["kurz_zahr"] = str_pad(trim($row['KURZ']), 13);
+//            $faktury_mrp[$i]["kurz_dom"] = str_pad("0.00", 13);
+//            $faktury_mrp[$i]["cvv"] = str_pad("0", 3);
+//            $faktury_mrp[$i]["cislo_plat_karty"] = str_pad("0", 20);
+//            $faktury_mrp[$i]["typ_dokl"] = str_pad("", 2);
+//            $faktury_mrp[$i]["cislo_predf"] = str_pad(trim($row['PROFORMA']), 10);
+//            $faktury_mrp[$i]["cislo_zak"] = str_pad(" ", 15);
+//            $faktury_mrp[$i]["suma_zahr"] = str_pad("0.00", 14);
+//            $faktury_mrp[$i]["zauctovane"] = "F";
+//            $faktury_mrp[$i]["ico_prij"] = str_pad(trim($row['ICOPRIJ']), 12);
+//            $faktury_mrp[$i]["id_fak"] = str_pad("", 10);
+//            $faktury_mrp[$i]["id_banka"] = str_pad("", 4);
+//            $faktury_mrp[$i]["suma_uhrad_zahr_mena"] = str_pad("0.00", 14);
+//            $faktury_mrp[$i]["hmotnost"] = str_pad(" ", 10);
+//            $faktury_mrp[$i]["dat_dodania"] = str_pad(trim($row['DATPOVFAK']), 10);
+//            $faktury_mrp[$i]["text"] = str_pad(" ", 30);
+//            $faktury_mrp[$i]["poznamka"] = str_pad(" ", 30);
+////blbosti v zahranicnej mene
+//            $faktury_mrp[$i]["zahr_mena_dph_blbosti"] = str_pad(" ", 110);
+//            $faktury_mrp[$i]["recykl"] = str_pad("0", 9);
+//            $faktury_mrp[$i]["pocet_des_pol"] = "2";
+//            $faktury_mrp[$i]["ciast_s_dph"] = "F";
+//            $faktury_mrp[$i]["prepoc_pol"] = "T";
+//            $faktury_mrp[$i]["spec_symb"] = str_pad(" ", 10);
+//            $faktury_mrp[$i]["pov_cis_fak"] = str_pad(" ", 32);
+//            $faktury_mrp[$i]["dat_dodania_tov_sluz"] = str_pad(" ", 10);
+//            $faktury_mrp[$i]["znizeny_odpocet"] = str_pad(" ", 28);
+//            $faktury_mrp[$i]["plny_odpocet"] = "T";
+//            $faktury_mrp[$i]["cislo_zdroj_dokl"] = str_pad(trim($row['PUVDANDOK']), 32);
+//        }
+////zapis do suboru
+//
+//        $ffaktury = fopen($destdir . "/FpImp.txt", "w");
+//        foreach ($faktury_mrp as $faktura) {
+//            fwrite($ffaktury, implode("", $faktura));
+//            fwrite($ffaktury, "\n");
+//        }
+//        fclose($ffaktury);
+//        dbase_close($db_prijate_fa);
+//    }
 
     if ($db_vydane_fa) {
 
@@ -434,7 +434,7 @@ function sklad_generate_txt() {
     if (count($nespracovane_fa) > 0) {
         $ffaktury = fopen($destdir . "/FNespracovane.txt", "w");
         foreach ($nespracovane_fa as $nesp_faktura) {
-            fwrite($ffaktury, implode("", $nesp_faktura));
+            fwrite($ffaktury, $nesp_faktura);
             fwrite($ffaktury, "\n");
         }
         fclose($ffaktury);
