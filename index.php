@@ -70,14 +70,18 @@ function clean_tmp($farray) {
     }
 }
 
-function rrmdir($dir) {
+function rrmdir($dir,$archive) {
     if (is_dir($dir)) {
         $objects = scandir($dir);
         foreach ($objects as $object) {
             if ($object != "." && $object != "..") {
                 if (is_dir($dir . "/" . $object)) {
-                    rrmdir($dir . "/" . $object);
-                } else if (stripos($object, "mrp_import.zip") === false) {
+                    rrmdir($dir . "/" . $object,$archive);
+                } else if ($archive==0){
+                    if(stripos($object, "mrp_import.zip") === false) {
+                        unlink($dir . "/" . $object);
+                    }
+                }else {
                     unlink($dir . "/" . $object);
                 }
             }
@@ -89,12 +93,10 @@ function rrmdir($dir) {
 if (isset($_GET['action']) && $_GET["action"] == "delete") {
     $ses = session_id();
     if (strlen($ses) > 0) {
-        rrmdir("downloads/" . $ses . "/");
+        rrmdir("downloads/" . $ses . "/",1);
         echo "Hotovo, citlivé dáta boli odstrátené.";
     }
-}
-
-if (isset($_POST['generuj_sklad2007'])) {
+} else if (isset($_POST['generuj_sklad2007'])) {
     //1. nacitat subory do tmp lokacie
     if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
         if (isset($_FILES['f_adresy'])) {
