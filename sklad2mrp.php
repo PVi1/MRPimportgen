@@ -19,7 +19,7 @@ function build_archive($sess_id) {
         die('Failed with code ' . $ret);
     } else {
         $directory = realpath($destdir);
-        $options = array('remove_all_path' => TRUE);
+        $options = array('add_path' => '/', 'remove_path' => $directory);
         $zip->addPattern('/\.(?:txt)$/', $directory, $options);
         $zip->close();
     }
