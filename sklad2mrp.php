@@ -20,7 +20,8 @@
  }
 
 function clean_mrp_files($sess_id){
-    if(is_dir("downloads/" . $sess_id . '/')){
+    
+    if(strlen($sess_id)>0 && is_dir("downloads/" . $sess_id . '/')){
         rrmdir("downloads/" . $sess_id . '/');
     }
 }
@@ -51,7 +52,7 @@ function sklad_generate_txt() {
     $nespracovane_fa = array();
     $nespracovane_fa_pol = array();
     $typ_polozky = "S";
-    $vygenerovane_subory = array();
+  
 
 // open in read-only mode
 
@@ -128,8 +129,7 @@ function sklad_generate_txt() {
             fwrite($fadresy, implode("", $adresa));
             fwrite($fadresy, "\n");
         }
-        fclose($fadresy);
-        array_push($vygenerovane_subory, "adres.txt");
+        fclose($fadresy);       
         dbase_close($db_adresy);
 
 //posli userovi
@@ -421,8 +421,7 @@ function sklad_generate_txt() {
             fwrite($ffaktury, implode("", $faktura));
             fwrite($ffaktury, "\n");
         }
-        fclose($ffaktury);
-        array_push($vygenerovane_subory, "FvImp.txt");
+        fclose($ffaktury);       
         dbase_close($db_vydane_fa);
     }
 
@@ -456,8 +455,7 @@ function sklad_generate_txt() {
             fwrite($ffaktury, implode("", $faktura_pol));
             fwrite($ffaktury, "\n");
         }
-        fclose($ffaktury);
-        array_push($vygenerovane_subory, "FvPolImp.txt");
+        fclose($ffaktury);        
         dbase_close($db_vydane_fa_pol);
     }
 
@@ -468,8 +466,7 @@ function sklad_generate_txt() {
             fwrite($ffaktury, $nesp_faktura);
             fwrite($ffaktury, "\n");
         }
-        fclose($ffaktury);
-        array_push($vygenerovane_subory, "FNespracovane.txt");
+        fclose($ffaktury);       
         $cesta_flag = build_archive($sess_id);
         return array(1, $cesta_flag);
     }
