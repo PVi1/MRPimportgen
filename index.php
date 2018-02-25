@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
 // and post_max_size
 function file_upload_max_size() {
@@ -99,6 +100,7 @@ if (isset($_POST['generuj_sklad2007'])) {
         //3.vycisti po sebe
         $ffiles=array("adresy.DBF","fakodb.DBF","fotext.DBF");
         clean_tmp($ffiles);
+        
         //4. vrati txt do browseru na ulozenie
     } else {
         die('Nenahrali ste všetky požadované súbory');
@@ -160,6 +162,7 @@ if (isset($_POST['generuj_sklad2007'])) {
             <form method="post" target="index.php" enctype="multipart/form-data">
                 <div class="w3-row-padding w3-margin-bottom">
                     <div class="w3-threequarter">
+                        <?php echo  "sess:".session_id(); ?>
                         <h4>Pre vygenerovanie súborov pre import do MRP priložte nasledovné súbory</h4>
                         <p>Súbor s adresami (adresy.DBF): <input type="file" name="f_adresy" id="f_adresy"></input><i id="sf_adresy" aria-hidden="true" class="fa fa-square-o"></i></p>
                         <p>Súbor s vystavenými faktúrami (fakodb.DBF): <input type="file" name="f_fakodb" id="f_fakodb"></input><i id="sf_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
