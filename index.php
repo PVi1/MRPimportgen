@@ -122,7 +122,7 @@ if (isset($_POST['generuj_sklad2007'])) {
             </header>
             <form method="post" target="index.php" enctype="multipart/form-data">
                 <div class="w3-row-padding w3-margin-bottom">
-                    <div class="w3-half">
+                    <div class="w3-threequarter">
                         <h4>Pre vygenerovanie súborov pre import do MRP priložte nasledovné súbory</h4>
                         <p>Súbor s adresami (adresy.DBF): <input type="file" name="f_adresy" id="f_adresy"></input><i id="sf_adresy" aria-hidden="true" class="fa fa-square-o"></i></p>
                         <p>Súbor s vystavenými faktúrami (fakodb.DBF): <input type="file" name="f_fakodb" id="f_fakodb"></input><i id="sf_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
