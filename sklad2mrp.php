@@ -2,6 +2,29 @@
 
 //session_start();
 
+ function rrmdir($dir) { 
+   if (is_dir($dir)) { 
+     $objects = scandir($dir); 
+     foreach ($objects as $object) { 
+       if ($object != "." && $object != "..") { 
+         if (is_dir($dir."/".$object)){
+           rrmdir($dir."/".$object);
+         }
+         else if(stripos($object, "mrp_import.zip")===false){
+           unlink($dir."/".$object); 
+         }
+       } 
+     }
+     rmdir($dir); 
+   } 
+ }
+
+function clean_mrp_files($sess_id){
+    if(is_dir("downloads/" . $sess_id . '/')){
+        rrmdir("downloads/" . $sess_id . '/');
+    }
+}
+
 function build_archive($sess_id) {
 
     $destdir = "downloads/" . $sess_id . '/';
@@ -16,7 +39,9 @@ function build_archive($sess_id) {
         $zip->addPattern('/\.(?:txt)$/', $directory, $options);
         $zip->close();
     }
+    clean_mrp_files($sess_id);
     return $destdir . "mrp_import.zip";
+    
 }
 
 function sklad_generate_txt() {
@@ -26,6 +51,7 @@ function sklad_generate_txt() {
     $nespracovane_fa = array();
     $nespracovane_fa_pol = array();
     $typ_polozky = "S";
+    $vygenerovane_subory = array();
 
 // open in read-only mode
 
@@ -34,9 +60,11 @@ function sklad_generate_txt() {
     $db_vydane_fa_pol = dbase_open($target_dir . $sess_id . '_' . 'fotext.DBF', 0) or die("Error! Could not open dbase fotext.DBF database file.");
 
     $destdir = "downloads/" . $sess_id;
+       
     if (!is_dir($destdir)) {
-        if (!mkdir($destdir, 0755))
-            die("Nedokazem vytvorit adresar, kontaktujte spravcu");
+        if (!mkdir($destdir, 0755)){
+            die("Nedokazem vytvorit adresar".$destdir.", kontaktujte spravcu");
+        }
     }
     if ($db_adresy) {
 // $adresy_mrp = array();
@@ -101,6 +129,7 @@ function sklad_generate_txt() {
             fwrite($fadresy, "\n");
         }
         fclose($fadresy);
+        array_push($vygenerovane_subory, "adres.txt");
         dbase_close($db_adresy);
 
 //posli userovi
@@ -393,6 +422,7 @@ function sklad_generate_txt() {
             fwrite($ffaktury, "\n");
         }
         fclose($ffaktury);
+        array_push($vygenerovane_subory, "FvImp.txt");
         dbase_close($db_vydane_fa);
     }
 
@@ -427,6 +457,7 @@ function sklad_generate_txt() {
             fwrite($ffaktury, "\n");
         }
         fclose($ffaktury);
+        array_push($vygenerovane_subory, "FvPolImp.txt");
         dbase_close($db_vydane_fa_pol);
     }
 
@@ -438,6 +469,7 @@ function sklad_generate_txt() {
             fwrite($ffaktury, "\n");
         }
         fclose($ffaktury);
+        array_push($vygenerovane_subory, "FNespracovane.txt");
         $cesta_flag = build_archive($sess_id);
         return array(1, $cesta_flag);
     }
