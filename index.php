@@ -61,9 +61,11 @@ function sec_file_upload($f_name, $ext) {
 
 function clean_tmp($farray) {
     $target_dir = "tmp_uploads/";
+    $sess_id = session_id();
+     
     foreach ($farray as $ffile) {
-        if (is_file($target_dir.$ffile)) {
-            unlink($target_dir.$ffile);
+        if (is_file($target_dir. $sess_id . '_' .$ffile)) {
+            unlink($target_dir. $sess_id . '_' .$ffile);
         }
     }
 }
