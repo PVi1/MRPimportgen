@@ -348,10 +348,12 @@ function sklad_generate_txt() {
             if ($dat_obj) {
                 $faktury_mrp[$i]["datum_obj"] = str_pad(date_format($dat_obj, 'd.m.Y'), 10);
             } else {
+                //tento udaj nieje kriticky
+                $faktury_mrp[$i]["datum_obj"] = str_pad(" ", 10);
 //poznac cislo FA ktora sa nesparsovala
-                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
-                $nespracovane_fa[]["dovod"] = "Nespravny datum objednavky - ". $row['DATOBJ'];
-                unset($faktury_mrp[$i]);
+//                $nespracovane_fa[]["cislo"] = $faktury_mrp[$i]["cislo"];
+//                $nespracovane_fa[]["dovod"] = "Nespravny datum objednavky - ". $row['DATOBJ'];
+//                unset($faktury_mrp[$i]);
             }
             $faktury_mrp[$i]["prikaz_uhr"] = "0";
             $faktury_mrp[$i]["mena"] = str_pad(trim($row['MENA']), 3);
