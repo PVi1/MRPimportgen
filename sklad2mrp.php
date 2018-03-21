@@ -171,6 +171,8 @@ function sklad_generate_txt() {
             }
             $dph_rozpis[trim($row['KCISFAK'])][trim($row['DAN'])]["zaklad"] += trim($row['CENPOL']);
             $dph_rozpis[trim($row['KCISFAK'])][trim($row['DAN'])]["dph"] += $hodnota_dph;
+            echo "\n". trim($row['KCISFAK'])." ".trim($row['DAN'])." zaklad:" .trim($row['CENPOL']);
+            echo "\n". trim($row['KCISFAK'])." ".trim($row['DAN'])."dph:". $hodnota_dph;
         }
         $ffaktury = fopen($destdir . "/FvPolImp.txt", "w");
         foreach ($faktury_mrp_pol as $faktura_pol) {
