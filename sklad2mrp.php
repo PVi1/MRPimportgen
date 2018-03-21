@@ -142,8 +142,8 @@ function sklad_generate_txt() {
 //        print_r($row);
 //    }
     }
-   
-    
+
+
     if ($db_vydane_fa_pol) {
 
         $dph_rozpis = array();
@@ -155,7 +155,7 @@ function sklad_generate_txt() {
             $faktury_mrp_pol[$i]["text"] = str_pad(trim($row['TEXT']), 50);
             $faktury_mrp_pol[$i]["mj"] = str_pad(trim($row['JED']), 3);
             $faktury_mrp_pol[$i]["pocet"] = str_pad(number_format(trim($row['MNO']), 3, ",", ""), 10, " ", STR_PAD_LEFT);
-            $faktury_mrp_pol[$i]["cena_pol"] = str_pad(number_format(trim($row['CENPOL']), 4, ",", ""), 12, " ", STR_PAD_LEFT);            
+            $faktury_mrp_pol[$i]["cena_pol"] = str_pad(number_format(trim($row['CENPOL']), 4, ",", ""), 12, " ", STR_PAD_LEFT);
             $faktury_mrp_pol[$i]["dph"] = str_pad(trim($row['DAN']), 2);
             $hodnota_dph = trim($row['CENPOL']) * trim($row['DAN']) / 100;
             $faktury_mrp_pol[$i]["dph_value"] = str_pad(number_format($hodnota_dph, 4, ",", ""), 12, " ", STR_PAD_LEFT);
@@ -165,7 +165,7 @@ function sklad_generate_txt() {
             $faktury_mrp_pol[$i]["hmotnost"] = str_pad("0,000", 10, " ", STR_PAD_LEFT);
             if (trim($row['DAN']) == 0) {
 //neda sa to rozlisit, robime by default 
-                $faktury_mrp_pol[$i]["typ"] = str_pad($typ_polozky, 2);                
+                $faktury_mrp_pol[$i]["typ"] = str_pad($typ_polozky, 2);
             } else {
                 $faktury_mrp_pol[$i]["typ"] = str_pad(" ", 2);
             }
@@ -207,7 +207,7 @@ function sklad_generate_txt() {
             $faktury_mrp[$i]["zaklad_mimo_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["0"]["zaklad"]), 12, " ", STR_PAD_LEFT);
 
             $faktury_mrp[$i]["suma_nizke_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["10"]["dph"]), 12, " ", STR_PAD_LEFT);
-            
+
             $faktury_mrp[$i]["suma_zaklad_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["20"]["dph"]), 12, " ", STR_PAD_LEFT);
 
             $faktury_mrp[$i]["zaklad_nizke_dph_neu"] = str_pad("0,00", 12, " ", STR_PAD_LEFT);
@@ -322,7 +322,7 @@ function sklad_generate_txt() {
         dbase_close($db_vydane_fa);
     }
 
-
+    unset($dph_rozpis);
 //zapis nespracovane faktury do suboru
     if (count($nespracovane_fa) > 0) {
         $ffaktury = fopen($destdir . "/FNespracovane.txt", "w");
