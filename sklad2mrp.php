@@ -200,17 +200,17 @@ function sklad_generate_txt() {
             $faktury_mrp[$i]["typy_dph"] = str_pad($druh_dph, 2);
             //sem pridat rozhodovacie pravidlo kedy aku dph pocitat
             //toto je zakl0
-            $faktury_mrp[$i]["zaklad_bez_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["0"]["zaklad"]), 12, " ", STR_PAD_LEFT);
+            $faktury_mrp[$i]["zaklad_bez_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["0"]["zaklad"], 2, ",", ""), 12, " ", STR_PAD_LEFT);
             //zakl1
-            $faktury_mrp[$i]["zaklad_nizke_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["10"]["zaklad"]), 12, " ", STR_PAD_LEFT);
+            $faktury_mrp[$i]["zaklad_nizke_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["10"]["zaklad"], 2, ",", ""), 12, " ", STR_PAD_LEFT);
             //zakl2
-            $faktury_mrp[$i]["zaklad_zakladne_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["20"]["zaklad"]), 12, " ", STR_PAD_LEFT);
+            $faktury_mrp[$i]["zaklad_zakladne_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["20"]["zaklad"], 2, ",", ""), 12, " ", STR_PAD_LEFT);
 
-            $faktury_mrp[$i]["zaklad_mimo_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["0"]["zaklad"]), 12, " ", STR_PAD_LEFT);
+            $faktury_mrp[$i]["zaklad_mimo_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["0"]["zaklad"], 2, ",", ""), 12, " ", STR_PAD_LEFT);
 
-            $faktury_mrp[$i]["suma_nizke_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["10"]["dph"]), 12, " ", STR_PAD_LEFT);
+            $faktury_mrp[$i]["suma_nizke_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["10"]["dph"], 2, ",", ""), 12, " ", STR_PAD_LEFT);
 
-            $faktury_mrp[$i]["suma_zaklad_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["20"]["dph"]), 12, " ", STR_PAD_LEFT);
+            $faktury_mrp[$i]["suma_zaklad_dph"] = str_pad(number_format($dph_rozpis[trim($row['CISFAK'])]["20"]["dph"], 2, ",", ""), 12, " ", STR_PAD_LEFT);
 
             $faktury_mrp[$i]["zaklad_nizke_dph_neu"] = str_pad("0,00", 12, " ", STR_PAD_LEFT);
             $faktury_mrp[$i]["zaklad_zakladne_dph_neu"] = str_pad("0,00", 12, " ", STR_PAD_LEFT);
