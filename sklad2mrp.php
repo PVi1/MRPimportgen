@@ -2,13 +2,6 @@
 
 //session_start();
 
-function clean_mrp_files($sess_id) {
-
-    if (strlen($sess_id) > 0 && is_dir("downloads/" . $sess_id . '/')) {
-        rrmdir("downloads/" . $sess_id . '/', 0);
-    }
-}
-
 function build_archive($sess_id) {
 
     $destdir = "downloads/" . $sess_id . '/';
@@ -22,8 +15,7 @@ function build_archive($sess_id) {
         $options = array('add_path' => '/', 'remove_path' => $directory);
         $zip->addPattern('/\.(?:txt)$/', $directory, $options);
         $zip->close();
-    }
-    clean_mrp_files($sess_id);
+    }  
     return $destdir . "mrp_import.zip";
 }
 
@@ -108,7 +100,7 @@ function sklad_generate_txt() {
             $adresy_mrp[$i]["swift"] = str_pad(" ", 11);
             $adresy_mrp[$i]["ean"] = str_pad(trim($row['EANKOD']), 17);
         }
-//zapis do suboru       
+//zapis do suboru
         $fadresy = fopen($destdir . "/adres.txt", "w");
         foreach ($adresy_mrp as $adresa) {
             fwrite($fadresy, implode("", $adresa));
@@ -164,7 +156,7 @@ function sklad_generate_txt() {
             $faktury_mrp_pol[$i]["karta"] = str_pad(number_format(trim($row['KARTA']), 2, ",", ""), 10, " ", STR_PAD_LEFT);
             $faktury_mrp_pol[$i]["hmotnost"] = str_pad("0,000", 10, " ", STR_PAD_LEFT);
             if (trim($row['DAN']) == 0) {
-//neda sa to rozlisit, robime by default 
+//neda sa to rozlisit, robime by default
                 $faktury_mrp_pol[$i]["typ"] = str_pad($typ_polozky, 2);
             } else {
                 $faktury_mrp_pol[$i]["typ"] = str_pad(" ", 2);
@@ -219,7 +211,7 @@ function sklad_generate_txt() {
             $faktury_mrp[$i]["suma_zaklad_dph_neu"] = str_pad("0,00", 12, " ", STR_PAD_LEFT);
             $faktury_mrp[$i]["suma_uhrad"] = str_pad("0,00", 12, " ", STR_PAD_LEFT);
             $faktury_mrp[$i]["cislo_dod_list"] = str_pad(" ", 10);
-//konverzia datumu z rmd na d.m.r            
+//konverzia datumu z rmd na d.m.r
             $dat_vyst = date_create_from_format('Ymd', $row['DATODESL']);
             if ($dat_vyst) {
                 $faktury_mrp[$i]["datum_vystavenia"] = str_pad(date_format($dat_vyst, 'd.m.Y'), 10);
@@ -314,7 +306,7 @@ function sklad_generate_txt() {
             $faktury_mrp[$i]["spec_symb"] = str_pad(" ", 93);
         }
 
-//zapis do suboru   
+//zapis do suboru
         $ffaktury = fopen($destdir . "/FvImp.txt", "w");
         foreach ($faktury_mrp as $faktura) {
             fwrite($ffaktury, implode("", $faktura));

@@ -90,6 +90,124 @@ function rrmdir($dir,$archive) {
     }
 }
 
+function mrpvsklad(){
+  echo '<header class="w3-container" style="padding-top:22px">
+        <h5><b><i class="fa fa-dashboard"></i> Prevody do MRP Visuálny účtovný systém cez .TXT</b></h5>
+    </header>
+    <form method="post" target="index.php" enctype="multipart/form-data">
+        <div class="w3-row-padding w3-margin-bottom">
+            <div class="w3-threequarter">
+                <h4>Pre vygenerovanie súborov pre import do MRP priložte nasledovné súbory</h4>
+                <p>Súbor s adresami (adresy.DBF): <input type="file" name="f_adresy" id="f_adresy"></input><i id="sf_adresy" aria-hidden="true" class="fa fa-square-o"></i></p>
+                <p>Súbor s vystavenými faktúrami (fakodb.DBF): <input type="file" name="f_fakodb" id="f_fakodb"></input><i id="sf_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
+                <p>Súbor s položkami faktúr (fotext.DBF): <input type="file" name="f_fotext" id="f_fotext"></input><i id="sf_fotext" aria-hidden="true" class="fa fa-square-o"></i></p>
+                <hr>
+                Kliknutím na nasledovné tlačidlo zahájite tvorbu TXT súboru pre import do MRP Visuálny účtovný systém: <input type="submit" class="button" name="generuj_sklad2007" value="Vygenerovať">
+
+            </div>
+        </div>
+    </form>
+    <div class="w3-panel">
+        <div class="w3-row-padding" style="margin:0 -16px">
+        </div>
+    </div>';
+}
+
+function mrpkssklad(){
+  echo '<header class="w3-container" style="padding-top:22px">
+        <h5><b><i class="fa fa-dashboard"></i> Prevody do MRP K/S</b></h5>
+    </header>
+    <form method="post" target="index.php" enctype="multipart/form-data">
+        <div class="w3-row-padding w3-margin-bottom">
+            <div class="w3-threequarter">
+                <h4>Pre úpravu vygenerovaných XML súborov pre import do MRP K/S, priložte nasledovné súbory</h4>
+                <p>Súbor XML s vystavenými faktúrami: <input type="file" name="f_xml_fakodb" id="f_xml_fakodb"></input><i id="sf_xml_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
+                <hr>
+                Kliknutím na nasledovné tlačidlo zahájite tvorbu XML súboru pre import do MRP: <input type="submit" class="button" name="generujks_sklad2007" value="Vygenerovať">
+            </div>
+        </div>
+    </form>
+    <div class="w3-panel">
+        <div class="w3-row-padding" style="margin:0 -16px">
+        </div>
+    </div>';
+}
+
+function generuj_sklad2007(){
+  //1. nacitat subory do tmp lokacie
+  if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
+      if (isset($_FILES['f_adresy'])) {
+          $fu_res = sec_file_upload('f_adresy', "DBF");
+          if ($fu_res) {
+              die('Problem pri nahravani suboru s adresami, detail:' . $fu_res . '.');
+          }
+      }
+      if (isset($_FILES['f_fakodb'])) {
+          $fu_res = sec_file_upload('f_fakodb', "DBF");
+          if ($fu_res) {
+              die('Problem pri nahravani suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
+          }
+      }
+      if (isset($_FILES['f_fotext'])) {
+          $fu_res = sec_file_upload('f_fotext', "DBF");
+          if ($fu_res) {
+              die('Problem pri nahravani suboru s položkami faktúr, detail:' . $fu_res . '.');
+          }
+      }
+
+      //2. spracovat obsah a vytvorit txt
+      require_once('sklad2mrp.php');
+      $res = sklad_generate_txt();
+
+      //3.vycisti po sebe
+      $ffiles = array("adresy.DBF", "fakodb.DBF", "fotext.DBF");
+      clean_tmp($ffiles);
+
+      //4. vrati txt do browseru na ulozenie
+      if ($res[0] == 0) {
+          echo "<h3>Konverzia prebehla úspešne.</h3>";
+      } else {
+          echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
+      }
+      echo "<p>Súbor s dátami pre import stiahnete <a href=\"downloads/" . session_id() . "/" . "mrp_import.zip\">tu</a></p>"
+      . "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
+  } else {
+      die('Nenahrali ste všetky požadované súbory');
+  }
+}
+
+function generujks_sklad2007(){
+  //1. nacitat subory do tmp lokacie
+  if (isset($_FILES['f_xml_fakodb'])) {
+
+      if (isset($_FILES['f_xml_fakodb'])) {
+          $fu_res = sec_file_upload('f_xml_fakodb', "XML");
+          if ($fu_res) {
+              die('Problem pri nahravani XML suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
+          }
+      }
+
+      //2. spracovat obsah a vytvorit txt
+      require_once('sklad2mrpks.php');
+      $res = sklad2mrpks_generate();
+
+      //3.vycisti po sebe
+      $ffiles = array($_FILES['f_xml_fakodb']['name']);
+      clean_tmp($ffiles);
+
+      //4. vrati txt do browseru na ulozenie
+      if ($res[0] == 0) {
+          echo "<h3>Konverzia prebehla úspešne.</h3>";
+      } else {
+          echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
+      }
+      echo "<p>Súbor s dátami pre import stiahnete <a href=\"" . $res[1] ."\">tu</a></p>"
+      . "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
+  } else {
+      die('Nenahrali ste všetky požadované súbory');
+  }
+}
+
 if (isset($_GET['action']) && $_GET["action"] == "delete") {
     $ses = session_id();
     if (strlen($ses) > 0) {
@@ -97,46 +215,11 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
         echo "Hotovo, citlivé dáta boli odstrátené.";
     }
 } else if (isset($_POST['generuj_sklad2007'])) {
-    //1. nacitat subory do tmp lokacie
-    if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
-        if (isset($_FILES['f_adresy'])) {
-            $fu_res = sec_file_upload('f_adresy', "DBF");
-            if ($fu_res) {
-                die('Problem pri nahravani suboru s adresami, detail:' . $fu_res . '.');
-            }
-        }
-        if (isset($_FILES['f_fakodb'])) {
-            $fu_res = sec_file_upload('f_fakodb', "DBF");
-            if ($fu_res) {
-                die('Problem pri nahravani suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
-            }
-        }
-        if (isset($_FILES['f_fotext'])) {
-            $fu_res = sec_file_upload('f_fotext', "DBF");
-            if ($fu_res) {
-                die('Problem pri nahravani suboru s položkami faktúr, detail:' . $fu_res . '.');
-            }
-        }
-
-        //2. spracovat obsah a vytvorit txt
-        require_once('sklad2mrp.php');
-        $res = sklad_generate_txt();
-
-        //3.vycisti po sebe
-        $ffiles = array("adresy.DBF", "fakodb.DBF", "fotext.DBF");
-        clean_tmp($ffiles);
-
-        //4. vrati txt do browseru na ulozenie
-        if ($res[0] == 0) {
-            echo "<h3>Konverzia prebehla úspešne.</h3>";
-        } else {
-            echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
-        }
-        echo "<p>Súbor s dátami pre import stiahnete <a href=\"downloads/" . session_id() . "/" . "mrp_import.zip\">tu</a></p>"
-        . "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
-    } else {
-        die('Nenahrali ste všetky požadované súbory');
-    }
+  //generuj sklad 2007 do mrp visual
+  generuj_sklad2007();
+} else if (isset($_POST['generujks_sklad2007'])) {
+  //generuj sklad 2007 do mrp visual
+  generujks_sklad2007();
 } else {
     ?>
     <!DOCTYPE html>
@@ -166,16 +249,24 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
 
                     </div>
                     <div class="w3-col s8 w3-bar">
-                        <span>Vitajte!</span><br>            
+                        <span>Vitajte!</span><br>
                     </div>
                 </div>
                 <hr>
                 <div class="w3-container">
-                    <h5>Prevody do MRP cez .TXT</h5>
+                    <h5>Prevody do MRP K/S</h5>
                 </div>
                 <div class="w3-bar-block">
                     <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
-                    <a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-users fa-fw"></i>  Sklad2007 (*.DBF)</a>   
+                    <a href="index.php?tool=mrpkssklad" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.XML)</a>
+                    <br><br>
+                </div>
+                <div class="w3-container">
+                    <h5>Prevody do MRP Visuálny účtovný systém</h5>
+                </div>
+                <div class="w3-bar-block">
+                    <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+                    <a href="index.php?tool=mrpvsklad" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.DBF)</a>
                     <br><br>
                 </div>
             </nav>
@@ -186,31 +277,22 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
 
             <!-- !PAGE CONTENT! -->
             <div class="w3-main" style="margin-left:300px;margin-top:43px;">
+            <?php
 
-                <!-- Header -->
-                <header class="w3-container" style="padding-top:22px">
-                    <h5><b><i class="fa fa-dashboard"></i> Prevody do MRP cez .TXT</b></h5>
-                </header>
-                <form method="post" target="index.php" enctype="multipart/form-data">
-                    <div class="w3-row-padding w3-margin-bottom">
-                        <div class="w3-threequarter">                        
-                            <h4>Pre vygenerovanie súborov pre import do MRP priložte nasledovné súbory</h4>
-                            <p>Súbor s adresami (adresy.DBF): <input type="file" name="f_adresy" id="f_adresy"></input><i id="sf_adresy" aria-hidden="true" class="fa fa-square-o"></i></p>
-                            <p>Súbor s vystavenými faktúrami (fakodb.DBF): <input type="file" name="f_fakodb" id="f_fakodb"></input><i id="sf_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
-                            <p>Súbor s položkami faktúr (fotext.DBF): <input type="file" name="f_fotext" id="f_fotext"></input><i id="sf_fotext" aria-hidden="true" class="fa fa-square-o"></i></p>
-                            <hr>
-                            Kliknutím na nasledovné tlačidlo zahájite tvorbu TXT súboru pre import do MRP: <input type="submit" class="button" name="generuj_sklad2007" value="Vygenerovať">
+            $tool = htmlspecialchars(addslashes($_GET['tool']));
 
-                        </div>   
-                    </div>
-                </form>
-                <div class="w3-panel">
-                    <div class="w3-row-padding" style="margin:0 -16px">
-                    </div>
-                </div>
+            switch($tool){
 
+            case 'mrpvsklad':
+                mrpvsklad();
+                break;
+            case 'mrpkssklad':
+                    mrpkssklad();
+                    break;
+            }
+            ?>
                 <hr>
-                <div class="w3-container">
+                <!--<div class="w3-container">
                     <h5>General Stats</h5>
                     <p>New Visitors</p>
                     <div class="w3-grey">
@@ -231,12 +313,12 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
 
 
                     </div>
-
+-->
                     <!-- Footer -->
                     <footer class="w3-container w3-padding-16 w3-light-grey">
-                        <h4>FOOTER</h4>
+
                         <p>Created by <a href="https://www.itriesenia.eu/" target="_blank">PVi1<a></p>
-                                    <p>Template by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>    
+                                    <p>Template by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
                                     </footer>
 
                                     <!-- End page content -->
@@ -271,7 +353,7 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                             $(function () {
                                                 $("input:file").change(function () {
                                                     var fileName = $(this).val().split(/[\\ ]+/).pop();
-                                                    ;
+
                                                     var inputName = $(this).attr('name');
                                                     var patMatch = "";
                                                     switch (inputName) {
@@ -283,6 +365,10 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                                             break;
                                                         case 'f_fotext':
                                                             patMatch = "fotext.DBF";
+                                                            break;
+                                                        case 'f_xml_fakodb':
+                                                            fileName = fileName.split('.').pop();
+                                                            patMatch = "xml";
                                                             break;
                                                     }
                                                     if (fileName === patMatch) {
@@ -300,8 +386,6 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                             $("form").submit(function (event) {
                                                 if (go == 1) {
                                                     //posli form
-                                                    alert('Posielam');
-
                                                     return;
                                                 } else {
 
