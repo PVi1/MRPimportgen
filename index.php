@@ -133,6 +133,26 @@ function mrpkssklad(){
     </div>';
 }
 
+function ecosunmrpks(){
+  echo '<header class="w3-container" style="padding-top:22px">
+        <h5><b><i class="fa fa-dashboard"></i> Prevod zo Sunsoft EcoSun K/S XML do MRP K/S</b></h5>
+    </header>
+    <form method="post" target="index.php" enctype="multipart/form-data">
+        <div class="w3-row-padding w3-margin-bottom">
+            <div class="w3-threequarter">
+                <h4>Pre úpravu vygenerovaných XML súborov pre efektívnejši import do MRP K/S(typ polozky, typ sumy dph), priložte nasledovné súbory</h4>
+                <p>Súbor XML s vystavenými faktúrami: <input type="file" name="f_xml_fakodb" id="f_xml_fakodb"></input><i id="sf_xml_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
+                <hr>
+                Kliknutím na nasledovné tlačidlo zahájite tvorbu XML súboru pre import do MRP: <input type="submit" class="button" name="generujks_ecosun" value="Vygenerovať">
+            </div>
+        </div>
+    </form>
+    <div class="w3-panel">
+        <div class="w3-row-padding" style="margin:0 -16px">
+        </div>
+    </div>';
+}
+
 function generuj_sklad2007(){
   //1. nacitat subory do tmp lokacie
   if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
@@ -176,7 +196,7 @@ function generuj_sklad2007(){
   }
 }
 
-function generujks_sklad2007(){
+function generujks($typ){
   //1. nacitat subory do tmp lokacie
   if (isset($_FILES['f_xml_fakodb'])) {
 
@@ -188,9 +208,20 @@ function generujks_sklad2007(){
       }
 
       //2. spracovat obsah a vytvorit txt
-      require_once('sklad2mrpks.php');
-      $res = sklad2mrpks_generate();
+      if(!isset($typ)){
+          die('Nieje zvolený typ importu, kontaktuj správcu systému.');
+      }
 
+      switch($typ){
+        case 'sklad2007':
+              require_once('sklad2mrpks.php');
+              $res = sklad2mrpks_generate();
+              break;
+        case 'ecosun':
+              require_once('ecosun2mrpks.php');
+              $res = ecosun2mrpks_generate();
+              break;
+      }
       //3.vycisti po sebe
       $ffiles = array($_FILES['f_xml_fakodb']['name']);
       clean_tmp($ffiles);
@@ -208,6 +239,7 @@ function generujks_sklad2007(){
   }
 }
 
+//spracovanie formulara
 if (isset($_GET['action']) && $_GET["action"] == "delete") {
     $ses = session_id();
     if (strlen($ses) > 0) {
@@ -219,8 +251,12 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
   generuj_sklad2007();
 } else if (isset($_POST['generujks_sklad2007'])) {
   //generuj sklad 2007 do mrp visual
-  generujks_sklad2007();
-} else {
+  generujks('sklad2007');
+} else if (isset($_POST['generujks_ecosun'])) {
+  //generuj sklad 2007 do mrp visual
+  generujks('ecosun');
+}
+ else {
     ?>
     <!DOCTYPE html>
     <html>
@@ -259,6 +295,7 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                 <div class="w3-bar-block">
                     <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
                     <a href="index.php?tool=mrpkssklad" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.XML)</a>
+                    <a href="index.php?tool=ecosunmrpks" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-users fa-fw"></i>Sunsoft ECOSUN (*.XML)</a>
                     <br><br>
                 </div>
                 <div class="w3-container">
@@ -288,6 +325,9 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                 break;
             case 'mrpkssklad':
                     mrpkssklad();
+                    break;
+            case 'ecosunmrpks':
+                    ecosunmrpks();
                     break;
             }
             ?>
