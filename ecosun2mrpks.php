@@ -8,7 +8,7 @@ function ecosun2mrpks_generate()
     $target_dir = "tmp_uploads/";
     $nespracovane_fa = array();
     $nespracovane_fa_pol = array();
-    $typ_polozky = "S";
+    $prestav_tax_code = 0;
 
 
     $xml_vydane_fa = $target_dir . $sess_id . '_' . $_FILES['f_xml_fakodb']["name"];
@@ -28,10 +28,23 @@ function ecosun2mrpks_generate()
          //nastavenie dp a typu polozky
               foreach ($invoice->Items->Item as $polozka) {
                 if($polozka->StockCardNumber>0){
+                  //mame fakturu kde bude treba zmenit tax code vsade
                   $polozka->RowSumType='3';
+                  $prestav_tax_code = 1;
                 }
               }
+              if($prestav_tax_code == 1){
+                //nastav taxcode na fakturu
+                $invoice->TaxCode = "85";
+                //nastav taxcode na vsetky polozky faktury
+                foreach ($invoice->Items->Item as $polozka) {
+                  $polozka->TaxCode = "85";
+                }
+                //hotovo faktura vybavena
+                $prestav_tax_code = 0;
+              }
        }
+
       file_put_contents($destdir . "/processed_".$_FILES['f_xml_fakodb']["name"], $xml->asXML());
     }
     else {
