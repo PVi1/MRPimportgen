@@ -29,6 +29,9 @@ function ecosun2mrpks_generate()
               foreach ($invoice->Items->Item as $polozka) {
                 if($polozka->StockCardNumber>0){
                   //mame fakturu kde bude treba zmenit tax code vsade
+			if(strpos($polozka->StockCardNumber,".00") === FALSE){
+				$polozka->StockCardNumber=$polozka->StockCardNumber.".00";
+			}
                   $polozka->RowSumType='3';
                   $prestav_tax_code = 1;
                 }
