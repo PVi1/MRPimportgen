@@ -189,7 +189,7 @@ function generuj_sklad2007(){
       } else {
           echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
       }
-      echo "<p>Súbor s dátami pre import stiahnete <a href=\"downloads/" . session_id() . "/" . "mrp_import.zip\">tu</a></p>"
+      echo "<p>Súbor s dátami pre import stiahnete <a href=\"downloads/" . session_id() . "/" . "mrp_import.zip\" target=\"_blank\">tu</a></p>"
       . "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
   } else {
       die('Nenahrali ste všetky požadované súbory');
