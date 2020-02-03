@@ -232,8 +232,15 @@ function generujks($typ){
       } else {
           echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
       }
-      echo "<p>Súbor s dátami pre import stiahnete <a href=\"" . $res[1] ."\">tu</a></p>"
-      . "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
+      echo "<p>Súbor s dátami pre import stiahnete <a href=\"" . $res[1] ."\" target=\"_blank\">tu</a></p>";
+      if(count($res[2])>0){
+        echo "<p>V nasledovných faktúrach sa nachádza položka typu kľúčová služba:<br />";
+        foreach ($res[2] as $faktura) {
+          echo "<strong>&nbsp;&nbsp;&nbsp;&nbsp;{$faktura}</strong><br />";
+        }
+        echo "</p>";
+      }
+      echo "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
   } else {
       die('Nenahrali ste všetky požadované súbory');
   }

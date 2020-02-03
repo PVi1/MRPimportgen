@@ -8,6 +8,7 @@ function ecosun2mrpks_generate()
     $target_dir = "tmp_uploads/";
     $nespracovane_fa = array();
     $nespracovane_fa_pol = array();
+    $faktury_klucova_sluzba = array();
     $prestav_tax_code = 0;
 
 
@@ -32,6 +33,10 @@ function ecosun2mrpks_generate()
                   $polozka->RowSumType='3';
                   $prestav_tax_code = 1;
                 }
+                //upozornit na Kluc na fakture
+                if(trim($polozka->Description) == "KLUC kopirovanie / uprava"){
+                  $faktury_klucova_sluzba[] = $invoice->DocumentNumber;
+                }
               }
               if($prestav_tax_code == 1){
                 //nastav taxcode na fakturu
@@ -51,5 +56,5 @@ function ecosun2mrpks_generate()
        die("Error! Could not open uploaded XML file:".$_FILES['f_xml_fakodb']["name"]);
     }
     //ak je vsetko ok
-    return array(0, $destdir . "/processed_".$_FILES['f_xml_fakodb']["name"]);
+    return array(0, $destdir . "/processed_".$_FILES['f_xml_fakodb']["name"],$faktury_klucova_sluzba);
 }
