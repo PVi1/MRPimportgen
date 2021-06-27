@@ -153,6 +153,27 @@ function ecosunmrpks(){
     </div>';
 }
 
+function omegatxtfvydanemrpks(){
+  echo '<header class="w3-container" style="padding-top:22px">
+        <h5><b><i class="fa fa-dashboard"></i> Prevod vydaných faktúr z KROS OMEGA vo formáte TXT(CSV) do MRP K/S</b></h5>
+    </header>
+    <form method="post" target="index.php" enctype="multipart/form-data">
+        <div class="w3-row-padding w3-margin-bottom">
+            <div class="w3-threequarter">
+                <h4>Pre vytvorenie XML súborov pre import vydaných faktúr do MRP K/S, priložte nasledovné súbory</h4>
+                <p>Súbor TXT s vystavenými faktúrami: <input type="file" name="f_txt" id="f_txt"></input><i id="sf_txt" aria-hidden="true" class="fa fa-square-o"></i></p>
+                <hr>
+                Kliknutím na nasledovné tlačidlo zahájite tvorbu XML súboru pre import do MRP: <input type="submit" class="button" name="generujks_omegafv" value="Vygenerovať">
+            </div>
+        </div>
+    </form>
+    <div class="w3-panel">
+        <div class="w3-row-padding" style="margin:0 -16px">
+        </div>
+    </div>';
+
+}
+
 function generuj_sklad2007(){
   //1. nacitat subory do tmp lokacie
   if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
@@ -197,21 +218,41 @@ function generuj_sklad2007(){
 }
 
 function generujks($typ){
-  //1. nacitat subory do tmp lokacie
-  if (isset($_FILES['f_xml_fakodb'])) {
 
-      if (isset($_FILES['f_xml_fakodb'])) {
-          $fu_res = sec_file_upload('f_xml_fakodb', "XML");
-          if ($fu_res) {
-              die('Problem pri nahravani XML suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
-          }
-      }
 
-      //2. spracovat obsah a vytvorit txt
       if(!isset($typ)){
           die('Nieje zvolený typ importu, kontaktuj správcu systému.');
       }
 
+  //1. nacitat subory do tmp lokacie
+      switch($typ){
+        case 'sklad2007':
+        case 'ecosun':
+              if (!isset($_FILES['f_xml_fakodb'])) {
+                  die('Nenahrali ste všetky požadované súbory');
+              }
+              if (isset($_FILES['f_xml_fakodb'])) {
+                  $fu_res = sec_file_upload('f_xml_fakodb', "XML");
+                  if ($fu_res) {
+                      die('Problem pri nahravani XML suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
+                  }
+              }
+              break;
+        case 'omegafv':
+              if (!isset($_FILES['f_txt'])) {
+                  die('Nenahrali ste všetky požadované súbory');
+              }
+              if (isset($_FILES['f_txt'])) {
+                  $fu_res = sec_file_upload('f_txt', "TXT");
+                  if ($fu_res) {
+                      die('Problem pri nahravani TXT suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
+                  }
+              }
+              break;
+        default:
+            die('Neznámy typ súboru, kontaktujte správcu systému.');
+      }
+  //2. spracovat obsah a vytvorit txt
       switch($typ){
         case 'sklad2007':
               require_once('sklad2mrpks.php');
@@ -221,10 +262,22 @@ function generujks($typ){
               require_once('ecosun2mrpks.php');
               $res = ecosun2mrpks_generate();
               break;
+        case 'omegafv':
+              require_once('omegavfa2mrpks.php');
+              $res = omegavfa2mrpks_generate();
       }
       //3.vycisti po sebe
-      $ffiles = array($_FILES['f_xml_fakodb']['name']);
-      clean_tmp($ffiles);
+      switch($typ){
+        case 'sklad2007':
+        case 'ecosun':
+              $ffiles = array($_FILES['f_xml_fakodb']['name']);
+              clean_tmp($ffiles);
+              break;
+        case 'omegafv':
+              $ffiles = array($_FILES['f_txt']['name']);
+              clean_tmp($ffiles);
+              break;
+      }
 
       //4. vrati txt do browseru na ulozenie
       if ($res[0] == 0) {
@@ -241,10 +294,9 @@ function generujks($typ){
         echo "</p>";
       }
       echo "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
-  } else {
-      die('Nenahrali ste všetky požadované súbory');
-  }
+
 }
+
 
 //spracovanie formulara
 if (isset($_GET['action']) && $_GET["action"] == "delete") {
@@ -257,11 +309,14 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
   //generuj sklad 2007 do mrp visual
   generuj_sklad2007();
 } else if (isset($_POST['generujks_sklad2007'])) {
-  //generuj sklad 2007 do mrp visual
+  //generuj sklad 2007 do mrp ks
   generujks('sklad2007');
 } else if (isset($_POST['generujks_ecosun'])) {
-  //generuj sklad 2007 do mrp visual
+  //generuj ecosun do rp ks
   generujks('ecosun');
+} else if (isset($_POST['generujks_omegafv'])) {
+  //generuj omega FV do mrp ks
+  generujks('omegafv');
 }
  else {
     ?>
@@ -303,6 +358,7 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                     <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
                     <a href="index.php?tool=mrpkssklad" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.XML)</a>
                     <a href="index.php?tool=ecosunmrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>Sunsoft ECOSUN (*.XML)</a>
+                    <a href="index.php?tool=omegatxtfvydanemrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>KROS OMEGA FA vydane (*.TXT)</a>
                     <br><br>
                 </div>
                 <div class="w3-container">
@@ -336,6 +392,9 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
             case 'ecosunmrpks':
                     ecosunmrpks();
                     break;
+            case 'omegatxtfvydanemrpks':
+                    omegatxtfvydanemrpks();
+                   break;
             }
             ?>
                 <hr>
@@ -416,6 +475,10 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                                         case 'f_xml_fakodb':
                                                             fileName = fileName.split('.').pop();
                                                             patMatch = "xml";
+                                                            break;
+                                                        case 'f_txt':
+                                                            fileName = fileName.split('.').pop();
+                                                            patMatch = "txt";
                                                             break;
                                                     }
                                                     if (fileName === patMatch) {
