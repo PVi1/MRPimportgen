@@ -163,7 +163,7 @@ function create_faktura($row_data){
   $xml_data .= '<IssueDate>'.date_format($datum_vyst,'Y-m-d').'</IssueDate>';
   $xml_data .= '<CurrencyCode>'.substr($row_data[39],0,3).'</CurrencyCode>';
   $xml_data .= '<ValuesWithTax>F</ValuesWithTax>';
-  $xml_data .= '<TaxCode>41</TaxCode>';
+  $xml_data .= '<TaxCode>10</TaxCode>';
 
 //overit ci je to c100
   switch($row_data[17]){
