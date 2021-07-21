@@ -127,7 +127,7 @@ function omegavfa2mrpks_generate() {
             $xml = simplexml_load_string($export_data_utf8);
             if ($xml !== false){
               //vystup
-              file_put_contents($destdir . "/processed_".$_FILES['f_txt']["name"], $xml->asXML());
+              file_put_contents($destdir . "/processed_".$_FILES['f_txt']["name"].".xml", $xml->asXML());
             }else {
               echo('Chyba pri validácii vytvoreného xml suboru:<br /><ul>');
               foreach(libxml_get_errors() as $error) {
@@ -146,7 +146,7 @@ function omegavfa2mrpks_generate() {
        die("Error! Could not find uploaded TXT file:".$_FILES['f_txt']["name"]);
     }
     //ak je vsetko ok posli spracovany subor klientovi
-    return array(0, $destdir . "/processed_".$_FILES['f_txt']["name"]);
+    return array(0, $destdir . "/processed_".$_FILES['f_txt']["name"].".xml");
 }
 
 //rozseka row_data a vytvori z nej sekciu xml obsahujucu hlavicku faktury
