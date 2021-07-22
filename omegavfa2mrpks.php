@@ -27,6 +27,7 @@ function omegavfa2mrpks_generate() {
     if (file_exists($txt_vydane_fa)) {
 
       if (($handle = fopen($txt_vydane_fa, "r")) !== FALSE) {
+        stream_filter_append($handle, 'convert.iconv.windows-1250.utf-8');
 
         //hlavicka suboru pre import
         $export_data = '<?xml version="1.0" encoding="UTF-8"?><MRPKSData version="2.0" countryCode="CZ" currencyCode="CZK"><IssuedInvoices>';
@@ -119,12 +120,10 @@ function omegavfa2mrpks_generate() {
             }
             //uzavri data na export
             $export_data .= '</IssuedInvoices></MRPKSData>';
-            //convert string
-            $export_data_utf8 = iconv("Windows-1250", "UTF-8",$export_data);
 
             //validuj a sparsuj xml data
             libxml_use_internal_errors(true);
-            $xml = simplexml_load_string($export_data_utf8);
+            $xml = simplexml_load_string($export_data);
             if ($xml !== false){
               //vystup
               file_put_contents($destdir . "/processed_".$_FILES['f_txt']["name"].".xml", $xml->asXML());
@@ -347,7 +346,7 @@ function create_polozka($row_data){
 
   while($start<strlen($row_data[1])){
     $xml_data .= '<Item>';
-    $xml_data .= '<Description>'.substr($row_data[1],$start,100). '</Description>';
+    $xml_data .= '<Description>'.htmlspecialchars(substr($row_data[1],$start,100)). '</Description>';
     $xml_data .= '<RowType>2</RowType>';
     $xml_data .= '</Item>';
     $start += 100;
