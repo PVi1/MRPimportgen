@@ -30,7 +30,7 @@ function omegavfa2mrpks_generate() {
         stream_filter_append($handle, 'convert.iconv.windows-1250.utf-8');
 
         //hlavicka suboru pre import
-        $export_data = '<?xml version="1.0" encoding="UTF-8"?><MRPKSData version="2.0" countryCode="CZ" currencyCode="CZK"><IssuedInvoices>';
+        $export_data = '<?xml version="1.0" encoding="UTF-8"?><MRPKSData version="2.0" countryCode="SK" currencyCode="EUR"><IssuedInvoices>';
 
             while (($row_data = fgetcsv($handle,0,"\t")) !== FALSE) {
 
@@ -68,6 +68,11 @@ function omegavfa2mrpks_generate() {
                                 $export_data .= $fa_data."</Items></Invoice>";
                               }
                             //hlavicka vystavenej faktury
+                            switch($row_data[17]){
+                              case '0':
+                              case '1':
+                              case '4':
+                              case '9':
                               $data = create_faktura($row_data);
                               if($data['result'] == -1){
                                 $nespracovane_fa[]["hlavicka"] = $row_data;
@@ -77,6 +82,8 @@ function omegavfa2mrpks_generate() {
                                 $spracovavana_fa_cislo = $data['fa_cislo'];
                                 $mj_cena_s_bez_dan = "";
                               }
+                              break;
+                            }
                               break;
                         case "R02":
                               //polozka vystavenej faktury
