@@ -140,7 +140,7 @@ function omegavfa2mrpks_generate() {
                 echo "<li>" . $error->message . "na riadku ".$error->line." a pozicii ".$error->column."</li>";
               }
               echo "</ul>";
-              echo "<pre>".$export_data_utf8."</pre>";
+              echo "<pre>".$export_data."</pre>";
               die('Kontaktujte autora apikácie');
             }
       }
@@ -202,7 +202,7 @@ function create_faktura($row_data){
   $xml_data .= '<TaxPointDate>'.date_format($datum_uzp,'Y-m-d').'</TaxPointDate>';
   $xml_data .= '<DeliveryDate>'.date_format($datum_uzp,'Y-m-d').'</DeliveryDate>';
 
-  $datum_pay = date_create_from_format('d.m.Y', $row_data[6]);
+  $datum_pay = date_create_from_format('d.m.Y', $row_data[5]);
   if(!$datum_pay){
     return $data['result'] = -1;
   }
@@ -289,7 +289,7 @@ function create_faktura($row_data){
   $xml_data .= '<Phone>'.substr($row_data[83],0,30).'</Phone>';
   $xml_data .= '<Note>'.htmlspecialchars(substr($row_data[44],0,1024)).'</Note>';
 
-  $pattern = "/a.s.$|s.r.o.$|v.o.s.$|k.s.$/i";
+  $pattern = "/a\.s\.$|s\.r\.o\.$|v\.o\.s\.$|k\.s\.$/i";
   if(preg_match($pattern, trim($row_data[2]))){
     $person_type = 'F';
   }
