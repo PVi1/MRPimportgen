@@ -174,6 +174,27 @@ function omegatxtfvydanemrpks(){
 
 }
 
+function faonlinecsvfvydanemrpks(){
+    echo '<header class="w3-container" style="padding-top:22px">
+          <h5><b><i class="fa fa-dashboard"></i> Prevod vydaných faktúr z Faktury-Online.com vo formáte CSV do MRP K/S</b></h5>
+      </header>
+      <form method="post" target="index.php" enctype="multipart/form-data">
+          <div class="w3-row-padding w3-margin-bottom">
+              <div class="w3-threequarter">
+                  <h4>Pre vytvorenie XML súborov pre import vydaných faktúr do MRP K/S, priložte nasledovné súbory</h4>
+                  <p>Súbor CSV s vystavenými faktúrami: <input type="file" name="f_csv" id="f_csv"></input><i id="sf_csv" aria-hidden="true" class="fa fa-square-o"></i></p>
+                  <hr>
+                  Kliknutím na nasledovné tlačidlo zahájite tvorbu XML súboru pre import do MRP K/S: <input type="submit" class="button" name="generujks_faonlinefv" value="Vygenerovať">
+              </div>
+          </div>
+      </form>
+      <div class="w3-panel">
+          <div class="w3-row-padding" style="margin:0 -16px">
+          </div>
+      </div>';
+  
+  }
+
 function generuj_sklad2007(){
   //1. nacitat subory do tmp lokacie
   if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
@@ -249,6 +270,17 @@ function generujks($typ){
                   }
               }
               break;
+        case 'faonlinefv':
+                if (!isset($_FILES['f_csv'])) {
+                    die('Nenahrali ste všetky požadované súbory');
+                }
+                if (isset($_FILES['f_csv'])) {
+                    $fu_res = sec_file_upload('f_csv', "CSV");
+                    if ($fu_res) {
+                        die('Problem pri nahravani CSV suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
+                    }
+                }
+                break;
         default:
             die('Neznámy typ súboru, kontaktujte správcu systému.');
       }
@@ -265,6 +297,9 @@ function generujks($typ){
         case 'omegafv':
               require_once('omegavfa2mrpks.php');
               $res = omegavfa2mrpks_generate();
+        case 'faonlinefv':
+              require_once('faonlinevfa2mrpks.php');
+              $res = faonlinevfa2mrpks_generate();
       }
       //3.vycisti po sebe
       switch($typ){
@@ -277,6 +312,10 @@ function generujks($typ){
               $ffiles = array($_FILES['f_txt']['name']);
               clean_tmp($ffiles);
               break;
+        case 'faonlinefv':
+              $ffiles = array($_FILES['f_csv']['name']);
+              clean_tmp($ffiles);
+              break;
       }
 
       //4. vrati txt do browseru na ulozenie
@@ -285,14 +324,7 @@ function generujks($typ){
       } else {
           echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
       }
-      echo "<p>Súbor s dátami pre import stiahnete <a href=\"" . $res[1] ."\" target=\"_blank\">tu</a></p>";
-      if(count($res[2])>0){
-        echo "<p>V nasledovných faktúrach sa nachádza položka typu kľúčová služba:<br />";
-        foreach ($res[2] as $faktura) {
-          echo "<strong>&nbsp;&nbsp;&nbsp;&nbsp;{$faktura}</strong><br />";
-        }
-        echo "</p>";
-      }
+      echo "<p>Súbor s dátami pre import stiahnete <a href=\"" . $res[1] ."\" target=\"_blank\">tu</a></p>";    
       echo "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
 
 }
@@ -317,6 +349,9 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
 } else if (isset($_POST['generujks_omegafv'])) {
   //generuj omega FV do mrp ks
   generujks('omegafv');
+} else if (isset($_POST['generujks_faonlinefv'])) {
+    //generuj faktura online FV do mrp ks
+    generujks('faonlinefv');
 }
  else {
     ?>
@@ -359,6 +394,7 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                     <a href="index.php?tool=mrpkssklad" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.XML)</a>
                     <a href="index.php?tool=ecosunmrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>Sunsoft ECOSUN (*.XML)</a>
                     <a href="index.php?tool=omegatxtfvydanemrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>KROS OMEGA FA vydane (*.TXT)</a>
+                    <a href="index.php?tool=faonlinecsvfvydanemrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>Faktury-online.com (*.CSV)</a>
                     <br><br>
                 </div>
                 <div class="w3-container">
@@ -394,6 +430,9 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                     break;
             case 'omegatxtfvydanemrpks':
                     omegatxtfvydanemrpks();
+                   break;
+            case 'faonlinecsvfvydanemrpks':
+                    faonlinecsvfvydanemrpks();
                    break;
             }
             ?>
@@ -479,6 +518,10 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                                         case 'f_txt':
                                                             fileName = fileName.split('.').pop();
                                                             patMatch = "txt";
+                                                            break;
+                                                        case 'f_csv':
+                                                            fileName = fileName.split('.').pop();
+                                                            patMatch = "csv";
                                                             break;
                                                     }
                                                     if (fileName === patMatch) {
