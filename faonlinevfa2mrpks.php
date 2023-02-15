@@ -7,8 +7,6 @@ function faonlinevfa2mrpks_generate()
   $sess_id = session_id();
   $target_dir = "tmp_uploads/";
   $nespracovane_fa = array();
-  $nespracovane_fa_pol = array();
-  $typ_poslednej_polozky = "";
   $start_found = 0;
 
 
@@ -43,14 +41,14 @@ function faonlinevfa2mrpks_generate()
         }
 
         if (count($row_data) > 0) {
-         
+
           $data = create_faktura($row_data);
           if ($data['result'] == -1) {
             $nespracovane_fa[]["hlavicka"] = $row_data;
           } else {
             $export_data .= $data['xml'];
-            $spracovavana_fa_cislo = $data['fa_cislo'];         
-          }          
+            $spracovavana_fa_cislo = $data['fa_cislo'];
+          }
         }
       }
 
@@ -61,7 +59,7 @@ function faonlinevfa2mrpks_generate()
       libxml_use_internal_errors(true);
       $xml = simplexml_load_string($export_data);
       if ($xml !== false) {
-        //vystup
+          //vystup
         file_put_contents($destdir . "/processed_" . $_FILES['f_csv']["name"] . ".xml", $xml->asXML());
       } else {
         echo ('Chyba pri validácii vytvoreného xml suboru:<br /><ul>');
@@ -87,33 +85,41 @@ function create_faktura($row_data)
 {
 
   $xml_data = '<Invoice>';
-  $data['fa_cislo'] = substr($row_data[0], 0, 10);
-  $xml_data .= '<DocumentNumber>' . $data['fa_cislo'] . '</DocumentNumber>';
+  $data['fa_cislo'] = trim(substr($row_data[0], 0, 50));
+  $xml_data .= '<OriginalDocumentNumber>' . $data['fa_cislo'] . '</OriginalDocumentNumber>';
   $xml_data .= '<IssueDate>' . $row_data[12] . '</IssueDate>';
   $xml_data .= '<CurrencyCode>' . substr($row_data[8], 0, 3) . '</CurrencyCode>';
   $xml_data .= '<ValuesWithTax>F</ValuesWithTax>';
-  $xml_data .= '<TaxCode>10</TaxCode>';
+
+  if (substr($row_data[27], 0, 2)== "SK"){
+    $tax_code = '10';
+  }else {
+    $tax_code = '19';
+    $xml_data .= '<RecapitulativeStatementCode>2</RecapitulativeStatementCode>';
+  }
+
+  $xml_data .= '<TaxCode>'.$tax_code.'</TaxCode>';
 
   //overit ci je to c100
   switch ($row_data[1]) {
     case "FAKTÚRA":
       $xml_data .= '<DocType> </DocType>';
       $xml_data .= '<InvoiceType>F</InvoiceType>';
-      break;   
+      break;
   }
 
-  if($row_data[5]==$row_data[4]){
+  if ($row_data[5] == $row_data[4]) {
     //bez dph
     $xml_data .= '<ZeroTaxRateAmount>' . number_format($row_data[4], 2, '.', '') . '</ZeroTaxRateAmount>';
-  }else {
+  } else {
     //  $xml_data .= '<ReducedTaxRateAmount>' . number_format($row_data[7], 2, '.', '') . '</ReducedTaxRateAmount>';
     $xml_data .= '<BaseTaxRateAmount>' . number_format($row_data[4], 2, '.', '') . '</BaseTaxRateAmount>';
     //$xml_data .= '<RoundingAmount>' . number_format($row_data[15], 2, '.', '') . '</RoundingAmount>';
     //$xml_data .= '<ReducedTaxRateTax>' . number_format($row_data[13], 2, '.', '') . '</ReducedTaxRateTax>';
-    $xml_data .= '<BaseTaxRateTax>' . number_format($row_data[5]-$row_data[4], 2, '.', '') . '</BaseTaxRateTax>';
+    $xml_data .= '<BaseTaxRateTax>' . number_format($row_data[5] - $row_data[4], 2, '.', '') . '</BaseTaxRateTax>';
   }
   $xml_data .= '<TotalWithTaxCurr>' . number_format($row_data[5], 2, '.', '') . '</TotalWithTaxCurr>';
-  
+
   $xml_data .= '<TaxPointDate>' . $row_data[12] . '</TaxPointDate>';
   $xml_data .= '<DeliveryDate>' . $row_data[13] . '</DeliveryDate>';
   $xml_data .= '<PaymentDueDate>' . $row_data[14] . '</PaymentDueDate>';
@@ -149,19 +155,19 @@ function create_faktura($row_data)
   $xml_data .= '<NaturalPerson>' . $person_type . '</NaturalPerson>';
   $xml_data .= '</Company>';
   $xml_data .= '<Items>';
-  
-  $data_pol = create_polozka($row_data);
+
+  $data_pol = create_polozka($row_data, $tax_code);
   $xml_data .= $data_pol['xml'];
-   
+
   $xml_data .= "</Items></Invoice>";
-      
+
   $data['result'] = 0;
   $data['xml'] = $xml_data;
-  
+
   return $data;
 }
 //rozseka rowdata a vrati onfo o polozke faktury vo formate xml
-function create_polozka($row_data)
+function create_polozka($row_data, $tax_code)
 {
   $xml_data = "";
   $xml_data .= '<Item>';
@@ -169,22 +175,29 @@ function create_polozka($row_data)
   $xml_data .= '<RowType>1</RowType>';
   $xml_data .= '<UnitCode>ks</UnitCode>';
   $xml_data .= '<Quantity>1</Quantity>';
+  $xml_data .= '<TaxCode>'.$tax_code.'</TaxCode>';
   $xml_data .= '<UnitPrice>' . number_format($row_data[4], 6, '.', '') . '</UnitPrice>';
 
-  if($row_data[5] == $row_data[4]) {
-      $xml_data .= '<TaxPercent>0</TaxPercent>';
-      $xml_data .= '<TaxAmount>0</TaxAmount>';
-  }else {    
-      $xml_data .= '<TaxPercent>20</TaxPercent>';     
-      $xml_data .= '<TaxAmount>' . number_format(($row_data[5] - $row_data[4]), 6, '.', '') . '</TaxAmount>';    
+  if ($row_data[5] == $row_data[4]) {
+    $xml_data .= '<TaxPercent>0</TaxPercent>';
+    $xml_data .= '<TaxAmount>0</TaxAmount>';
+  } else {
+    $xml_data .= '<TaxPercent>20</TaxPercent>';
+    $xml_data .= '<TaxAmount>' . number_format(($row_data[5] - $row_data[4]), 6, '.', '') . '</TaxAmount>';
   }
 
   $xml_data .= '<RowSumType>1</RowSumType>';
 
+  if($tax_code == "19"){
+
+    $xml_data .= '<ItemType>S</ItemType>';
+
+  }
+
   $xml_data .= '</Item>';
-  
+
   $data['xml'] = $xml_data;
 
-return $data;
+  return $data;
 }
 ?>
