@@ -34,8 +34,10 @@ function faonlinevfa2mrpks_generate()
       while (($row_data = fgetcsv($handle, 0, )) !== FALSE) {
 
         while ($start_found == 0) {
-          if ($row_data[0] == "Číslo faktúry") {
+          if (is_array($row_data)) {
+            if ($row_data[0] == "Číslo faktúry") {
             $start_found = 1;
+            }
           }
           $row_data = fgetcsv($handle, 0, );
         }
