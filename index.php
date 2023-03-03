@@ -297,9 +297,11 @@ function generujks($typ){
         case 'omegafv':
               require_once('omegavfa2mrpks.php');
               $res = omegavfa2mrpks_generate();
+              break;
         case 'faonlinefv':
               require_once('faonlinevfa2mrpks.php');
               $res = faonlinevfa2mrpks_generate();
+              break;
       }
       //3.vycisti po sebe
       switch($typ){

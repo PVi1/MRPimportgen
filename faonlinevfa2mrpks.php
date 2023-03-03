@@ -93,7 +93,7 @@ function create_faktura($row_data)
   $xml_data .= '<CurrencyCode>' . substr($row_data[8], 0, 3) . '</CurrencyCode>';
   $xml_data .= '<ValuesWithTax>F</ValuesWithTax>';
 
-  if (substr($row_data[27], 0, 2)== "SK"){
+  if (substr(trim($row_data[27]), 0, 2)== "SK"){
     $tax_code = '10';
   }else {
     $tax_code = '19';
@@ -122,7 +122,7 @@ function create_faktura($row_data)
   }
   $xml_data .= '<TotalWithTaxCurr>' . number_format($row_data[5], 2, '.', '') . '</TotalWithTaxCurr>';
 
-  $xml_data .= '<TaxPointDate>' . $row_data[12] . '</TaxPointDate>';
+  $xml_data .= '<TaxPointDate>' . $row_data[13] . '</TaxPointDate>';
   $xml_data .= '<DeliveryDate>' . $row_data[13] . '</DeliveryDate>';
   $xml_data .= '<PaymentDueDate>' . $row_data[14] . '</PaymentDueDate>';
 
