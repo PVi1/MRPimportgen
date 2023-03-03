@@ -309,7 +309,17 @@ function create_faktura($row_data){
 function create_polozka($row_data){
   $xml_data = "";
   $xml_data .= '<Item>';
-  $xml_data .= '<Description>'.htmlspecialchars(substr($row_data[1],0,100)).'</Description>';
+
+  if(strlen($row_data[1])<=100){
+    $start_next = 99;
+  } else {    
+    $start_next = strrpos(substr($row_data[1],0,100)," ",-1);
+    if($start_next === false){
+      $start_next = 99;
+    }
+}
+  
+  $xml_data .= '<Description>'.htmlspecialchars(substr($row_data[1],0,$start_next+1)).'</Description>';
   $xml_data .= '<RowType>1</RowType>';
   $xml_data .= '<UnitCode>'.substr($row_data[3],0,3).'</UnitCode>';
   $xml_data .= '<Quantity>'.number_format($row_data[2], 6, '.', '').'</Quantity>';
@@ -339,8 +349,8 @@ function create_polozka($row_data){
         break;
     case 'X':
         $xml_data .= '<TaxPercent>99</TaxPercent>';
-        break;
         $xml_data .= '<TaxAmount>0</TaxAmount>';
+        break;        
   }
 
     $xml_data .= '<DiscountPercent>'.number_format($row_data[8], 2, '.', '').'</DiscountPercent>';
@@ -349,15 +359,23 @@ function create_polozka($row_data){
 
   $xml_data .= '</Item>';
   //ak je desctiption dlhssi ako 100, tak sprav dalsie riadky ale textove
-  $start = 100;
+  $start = $start_next;
 
   while($start<strlen($row_data[1])){
     $xml_data .= '<Item>';
-    $xml_data .= '<Description>'.htmlspecialchars(substr($row_data[1],$start,100)). '</Description>';
-    $xml_data .= '<RowType>2</RowType>';
-    $xml_data .= '</Item>';
-    $start += 100;
-  }
+    if ((strlen($row_data[1]) - $start) > 100){
+      $next_len = strrpos(substr($row_data[1],$start,100)," ",-1);
+      if ($next_len === false || $next_len == 0){
+        $next_len = 100;
+      }
+    } else {
+      $next_len = 100;
+    }
+      $xml_data .= '<Description>'.htmlspecialchars(substr($row_data[1],$start,$next_len)). '</Description>';
+      $xml_data .= '<RowType>2</RowType>';
+      $xml_data .= '</Item>';
+      $start += $next_len;
+    }
 
   switch($row_data[49]){
     //s dph
