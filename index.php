@@ -416,26 +416,27 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
             <!-- !PAGE CONTENT! -->
             <div class="w3-main" style="margin-left:300px;margin-top:43px;">
             <?php
+            if (isset($_GET['tool'])){
+                $tool = htmlspecialchars(addslashes($_GET['tool']));
 
-            $tool = htmlspecialchars(addslashes($_GET['tool']));
+                switch($tool){
 
-            switch($tool){
-
-            case 'mrpvsklad':
-                mrpvsklad();
-                break;
-            case 'mrpkssklad':
-                    mrpkssklad();
+                case 'mrpvsklad':
+                    mrpvsklad();
                     break;
-            case 'ecosunmrpks':
-                    ecosunmrpks();
+                case 'mrpkssklad':
+                        mrpkssklad();
+                        break;
+                case 'ecosunmrpks':
+                        ecosunmrpks();
+                        break;
+                case 'omegatxtfvydanemrpks':
+                        omegatxtfvydanemrpks();
                     break;
-            case 'omegatxtfvydanemrpks':
-                    omegatxtfvydanemrpks();
-                   break;
-            case 'faonlinecsvfvydanemrpks':
-                    faonlinecsvfvydanemrpks();
-                   break;
+                case 'faonlinecsvfvydanemrpks':
+                        faonlinecsvfvydanemrpks();
+                    break;
+                }
             }
             ?>
                 <hr>
