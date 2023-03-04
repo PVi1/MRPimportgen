@@ -90,29 +90,6 @@ function rrmdir($dir,$archive) {
     }
 }
 
-function mrpvsklad(){
-  echo '<header class="w3-container" style="padding-top:22px">
-        <h5><b><i class="fa fa-dashboard"></i> Prevody do MRP Visuálny účtovný systém cez .TXT</b></h5>
-    </header>
-    <form method="post" target="index.php" enctype="multipart/form-data">
-        <div class="w3-row-padding w3-margin-bottom">
-            <div class="w3-threequarter">
-                <h4>Pre vygenerovanie súborov pre import do MRP priložte nasledovné súbory</h4>
-                <p>Súbor s adresami (adresy.DBF): <input type="file" name="f_adresy" id="f_adresy"></input><i id="sf_adresy" aria-hidden="true" class="fa fa-square-o"></i></p>
-                <p>Súbor s vystavenými faktúrami (fakodb.DBF): <input type="file" name="f_fakodb" id="f_fakodb"></input><i id="sf_fakodb" aria-hidden="true" class="fa fa-square-o"></i></p>
-                <p>Súbor s položkami faktúr (fotext.DBF): <input type="file" name="f_fotext" id="f_fotext"></input><i id="sf_fotext" aria-hidden="true" class="fa fa-square-o"></i></p>
-                <hr>
-                Kliknutím na nasledovné tlačidlo zahájite tvorbu TXT súboru pre import do MRP Visuálny účtovný systém: <input type="submit" class="button" name="generuj_sklad2007" value="Vygenerovať">
-
-            </div>
-        </div>
-    </form>
-    <div class="w3-panel">
-        <div class="w3-row-padding" style="margin:0 -16px">
-        </div>
-    </div>';
-}
-
 function mrpkssklad(){
   echo '<header class="w3-container" style="padding-top:22px">
         <h5><b><i class="fa fa-dashboard"></i> Prevody do MRP K/S</b></h5>
@@ -174,9 +151,9 @@ function omegatxtfvydanemrpks(){
 
 }
 
-function faonlinecsvfvydanemrpks(){
+function faonlinexlsxfvydanemrpks(){
     echo '<header class="w3-container" style="padding-top:22px">
-          <h5><b><i class="fa fa-dashboard"></i> Prevod vydaných faktúr z Faktury-Online.com vo formáte CSV do MRP K/S</b></h5>
+          <h5><b><i class="fa fa-dashboard"></i> Prevod vydaných faktúr z Faktury-Online.com vo formáte XLSX do MRP K/S</b></h5>
       </header>
       <form method="post" target="index.php" enctype="multipart/form-data">
           <div class="w3-row-padding w3-margin-bottom">
@@ -194,49 +171,6 @@ function faonlinecsvfvydanemrpks(){
       </div>';
   
   }
-
-function generuj_sklad2007(){
-  //1. nacitat subory do tmp lokacie
-  if (isset($_FILES['f_adresy']) && isset($_FILES['f_fakodb']) && isset($_FILES['f_fotext'])) {
-      if (isset($_FILES['f_adresy'])) {
-          $fu_res = sec_file_upload('f_adresy', "DBF");
-          if ($fu_res) {
-              die('Problem pri nahravani suboru s adresami, detail:' . $fu_res . '.');
-          }
-      }
-      if (isset($_FILES['f_fakodb'])) {
-          $fu_res = sec_file_upload('f_fakodb', "DBF");
-          if ($fu_res) {
-              die('Problem pri nahravani suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
-          }
-      }
-      if (isset($_FILES['f_fotext'])) {
-          $fu_res = sec_file_upload('f_fotext', "DBF");
-          if ($fu_res) {
-              die('Problem pri nahravani suboru s položkami faktúr, detail:' . $fu_res . '.');
-          }
-      }
-
-      //2. spracovat obsah a vytvorit txt
-      require_once('sklad2mrp.php');
-      $res = sklad_generate_txt();
-
-      //3.vycisti po sebe
-      $ffiles = array("adresy.DBF", "fakodb.DBF", "fotext.DBF");
-      clean_tmp($ffiles);
-
-      //4. vrati txt do browseru na ulozenie
-      if ($res[0] == 0) {
-          echo "<h3>Konverzia prebehla úspešne.</h3>";
-      } else {
-          echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
-      }
-      echo "<p>Súbor s dátami pre import stiahnete <a href=\"downloads/" . session_id() . "/" . "mrp_import.zip\" target=\"_blank\">tu</a></p>"
-      . "<p>Po stiahnutí súboru s archívom, odstránte všetky nahraté dáta týkajúce sa tohto prevodu zo servera, kliknutím <a href=\"index.php?action=delete\">sem</a></p>";
-  } else {
-      die('Nenahrali ste všetky požadované súbory');
-  }
-}
 
 function generujks($typ){
 
@@ -271,13 +205,13 @@ function generujks($typ){
               }
               break;
         case 'faonlinefv':
-                if (!isset($_FILES['f_csv'])) {
+                if (!isset($_FILES['f_xlsx'])) {
                     die('Nenahrali ste všetky požadované súbory');
                 }
-                if (isset($_FILES['f_csv'])) {
-                    $fu_res = sec_file_upload('f_csv', "CSV");
+                if (isset($_FILES['f_xlsx'])) {
+                    $fu_res = sec_file_upload('f_xlsx', "XLSX");
                     if ($fu_res) {
-                        die('Problem pri nahravani CSV suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
+                        die('Problem pri nahravani XLSX suboru s vystavenými faktúrami, detail:' . $fu_res . '.');
                     }
                 }
                 break;
@@ -315,7 +249,7 @@ function generujks($typ){
               clean_tmp($ffiles);
               break;
         case 'faonlinefv':
-              $ffiles = array($_FILES['f_csv']['name']);
+              $ffiles = array($_FILES['f_xlsx']['name']);
               clean_tmp($ffiles);
               break;
       }
@@ -339,9 +273,6 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
         rrmdir("downloads/" . $ses . "/",1);
         echo "Hotovo, citlivé dáta boli odstrátené.";
     }
-} else if (isset($_POST['generuj_sklad2007'])) {
-  //generuj sklad 2007 do mrp visual
-  generuj_sklad2007();
 } else if (isset($_POST['generujks_sklad2007'])) {
   //generuj sklad 2007 do mrp ks
   generujks('sklad2007');
@@ -396,17 +327,9 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                     <a href="index.php?tool=mrpkssklad" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.XML)</a>
                     <a href="index.php?tool=ecosunmrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>Sunsoft ECOSUN (*.XML)</a>
                     <a href="index.php?tool=omegatxtfvydanemrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>KROS OMEGA FA vydane (*.TXT)</a>
-                    <a href="index.php?tool=faonlinecsvfvydanemrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>Faktury-online.com (*.CSV)</a>
+                    <a href="index.php?tool=faonlinexlsxfvydanemrpks" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>Faktury-online.com (*.XLSX)</a>
                     <br><br>
-                </div>
-                <div class="w3-container">
-                    <h5>Prevody do MRP Visuálny účtovný systém</h5>
-                </div>
-                <div class="w3-bar-block">
-                    <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
-                    <a href="index.php?tool=mrpvsklad" class="w3-bar-item w3-button w3-padding"><i class="fa fa-users fa-fw"></i>APK SW - SPED (*.DBF)</a>
-                    <br><br>
-                </div>
+                </div>               
             </nav>
 
 
@@ -421,47 +344,22 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
 
                 switch($tool){
 
-                case 'mrpvsklad':
-                    mrpvsklad();
-                    break;
-                case 'mrpkssklad':
-                        mrpkssklad();
+                    case 'mrpkssklad':
+                            mrpkssklad();
+                            break;
+                    case 'ecosunmrpks':
+                            ecosunmrpks();
+                            break;
+                    case 'omegatxtfvydanemrpks':
+                            omegatxtfvydanemrpks();
                         break;
-                case 'ecosunmrpks':
-                        ecosunmrpks();
-                        break;
-                case 'omegatxtfvydanemrpks':
-                        omegatxtfvydanemrpks();
-                    break;
-                case 'faonlinecsvfvydanemrpks':
-                        faonlinecsvfvydanemrpks();
+                    case 'faonlinexlsxfvydanemrpks':
+                            faonlinexlsxfvydanemrpks();
                     break;
                 }
             }
             ?>
-                <hr>
-                <!--<div class="w3-container">
-                    <h5>General Stats</h5>
-                    <p>New Visitors</p>
-                    <div class="w3-grey">
-                        <div class="w3-container w3-center w3-padding w3-green" style="width:25%">+25%</div>
-                    </div>
-
-
-                    <div class="w3-container">
-
-                    </div>
-                    <hr>
-                    <div class="w3-container">
-
-                    </div>
-                    <hr>
-
-                    <div class="w3-container">
-
-
-                    </div>
--->
+                <hr>               
                     <!-- Footer -->
                     <footer class="w3-container w3-padding-16 w3-light-grey">
 
@@ -505,15 +403,7 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                                     var inputName = $(this).attr('name');
                                                     var patMatch = "";
                                                     switch (inputName) {
-                                                        case 'f_adresy':
-                                                            patMatch = "adresy.DBF";
-                                                            break;
-                                                        case 'f_fakodb':
-                                                            patMatch = "fakodb.DBF";
-                                                            break;
-                                                        case 'f_fotext':
-                                                            patMatch = "fotext.DBF";
-                                                            break;
+
                                                         case 'f_xml_fakodb':
                                                             fileName = fileName.split('.').pop();
                                                             patMatch = "xml";
