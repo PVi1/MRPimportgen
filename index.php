@@ -159,7 +159,7 @@ function faonlinexlsxfvydanemrpks(){
           <div class="w3-row-padding w3-margin-bottom">
               <div class="w3-threequarter">
                   <h4>Pre vytvorenie XML súborov pre import vydaných faktúr do MRP K/S, priložte nasledovné súbory</h4>
-                  <p>Súbor XLSX s vystavenými faktúrami: <input type="file" name="f_csv" id="f_csv"></input><i id="sf_csv" aria-hidden="true" class="fa fa-square-o"></i></p>
+                  <p>Súbor XLSX s vystavenými faktúrami: <input type="file" name="f_xlsx" id="f_xlsx"></input><i id="sf_xlsx" aria-hidden="true" class="fa fa-square-o"></i></p>
                   <hr>
                   Kliknutím na nasledovné tlačidlo zahájite tvorbu XML súboru pre import do MRP K/S: <input type="submit" class="button" name="generujks_faonlinefv" value="Vygenerovať">
               </div>
@@ -261,7 +261,7 @@ function generujks($typ){
           echo "<h3>Pozor, nie všetky faktúry bolo možné importovať! Skontroluj obsah súboru FNespracovane.txt!</h3>";
       }
       echo "<p>Súbor s dátami pre import stiahnete <a href=\"" . $res[1] ."\" target=\"_blank\">tu</a></p>";    
-      if(count($res[2])>0){
+      if( isset($res[2]) && count($res[2])>0){
         echo "<p>V nasledovných faktúrach sa nachádza položka typu kľúčová služba:<br />";
         foreach ($res[2] as $faktura) {
           echo "<strong>&nbsp;&nbsp;&nbsp;&nbsp;{$faktura}</strong><br />";
@@ -419,9 +419,9 @@ if (isset($_GET['action']) && $_GET["action"] == "delete") {
                                                             fileName = fileName.split('.').pop();
                                                             patMatch = "txt";
                                                             break;
-                                                        case 'f_csv':
+                                                        case 'f_xlsx':
                                                             fileName = fileName.split('.').pop();
-                                                            patMatch = "csv";
+                                                            patMatch = "xlsx";
                                                             break;
                                                     }
                                                     if (fileName === patMatch) {
