@@ -358,7 +358,7 @@ function create_polozka($row_data){
     $xml_data .= '<RowSumType>1</RowSumType>';
 
   $xml_data .= '</Item>';
-  //ak je desctiption dlhssi ako 100, tak sprav dalsie riadky ale textove
+  //ak je desctiption dlhsi ako 100, tak sprav dalsie riadky, ale textove
   $start = $start_next;
 
   while($start<strlen($row_data[1])){
