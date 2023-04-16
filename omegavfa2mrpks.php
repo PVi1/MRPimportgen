@@ -317,7 +317,18 @@ function create_polozka($row_data){
     if($start_next === false){
       $start_next = 99;
     }
-}
+  }
+  
+//Sluzba - S
+//Tovar - T
+  switch(trim($row_data[9])){
+    case 'K':
+      $xml_data .= '<ItemType>T</ItemType>';
+      break;
+    case 'S':
+      $xml_data .= '<ItemType>S</ItemType>';
+      break;
+  }
   
   $xml_data .= '<Description>'.htmlspecialchars(substr($row_data[1],0,$start_next+1)).'</Description>';
   $xml_data .= '<RowType>1</RowType>';
