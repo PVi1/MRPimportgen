@@ -25,11 +25,12 @@ function zacni_fakturu($row_data,&$totals){
     $totals["10"]=0;
     $totals["20"]=0;
     $totals["99"]=0;
+    $totals["item_type"]="";
 
     $xml_data ="<Invoice>";
-    $data['fa_cislo'] = substr($row_data[0],0,10);
-    $xml_data .= '<DocumentNumber>'.$data['fa_cislo'].'</DocumentNumber>';
-  
+    $data['fa_cislo'] = trim(substr($row_data[0], 0, 50));
+    $xml_data .= '<OriginalDocumentNumber>' . $data['fa_cislo'] . '</OriginalDocumentNumber>';
+    
     $datum_vyst = date_create_from_format('Y-m-d', $row_data[12]);
     if(!$datum_vyst){
       return $data['result'] = -1;
@@ -43,6 +44,7 @@ function zacni_fakturu($row_data,&$totals){
   }else {
     $tax_code = '19';
     $xml_data .= '<RecapitulativeStatementCode>2</RecapitulativeStatementCode>';
+    $totals['item_type'] = "S";
   }
 
   $xml_data .= '<TaxCode>'.$tax_code.'</TaxCode>';
@@ -103,8 +105,8 @@ function zacni_fakturu($row_data,&$totals){
     $xml_data .= '<VatNumberSK>'.substr(trim($row_data[27]),0,14).'</VatNumberSK>';
     $xml_data .= '<Note>'.htmlspecialchars(substr($row_data[37]." ".$row_data[38],0,1024)).'</Note>';
   
-    $pattern = "/a\.s\.$|s\.r\.o\.$|v\.o\.s\.$|k\.s\.$/i";
-    if(preg_match($pattern, trim($row_data[2]))){
+    $pattern = "/a\.[ ]*s\.$|s\.r\.o\.$|v\.o\.s\.$|k\.s\.$|štátny podnik$|spol\. s r\.o\.$/i";
+    if(preg_match($pattern, trim($row_data[3]))){
       $person_type = 'F';
     }
     else {
@@ -141,6 +143,10 @@ function polozka($row_data,&$totals){
   $xml_data .= '<UnitCode>'.substr(trim($row_data[4]),0,3).'</UnitCode>';
   $xml_data .= '<Quantity>'.number_format(floatval(trim($row_data[3])), 6, '.', '').'</Quantity>';
   $xml_data .= '<UnitPrice>'.number_format(floatval(trim($row_data[5])), 6, '.', '').'</UnitPrice>';
+  
+  if(isset($totals['item_type'])){
+        $xml_data .= '<ItemType>S</ItemType>';
+  }
 
   switch($row_data[6]){
     case '0':

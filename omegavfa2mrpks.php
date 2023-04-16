@@ -8,6 +8,7 @@ function omegavfa2mrpks_generate() {
     $nespracovane_fa = array();
     $nespracovane_fa_pol = array();
     $typ_poslednej_polozky = "";
+    $tax_code_set = 0;
 
 
     $txt_vydane_fa = $target_dir . $sess_id . '_' . $_FILES['f_txt']["name"];
@@ -65,7 +66,13 @@ function omegavfa2mrpks_generate() {
                         case "R01":
                               if($typ_poslednej_polozky == 2 && $fa_data != ""){
                                 //uzavri fakturu a zapis data o predch fakture do xml
-                                $export_data .= $fa_data."</Items></Invoice>";
+                                $export_data .= $fa_data."</Items>";
+                                //pridaj info o type dph
+                                if ($tax_code_set == 0){
+                                  $export_data .= "<TaxCode>".$data["tax_code"]."</TaxCode>";
+                                }
+                                $export_data .= "</Invoice>";
+                                $tax_code_set = 0;
                               }
                             //hlavicka vystavenej faktury
                             switch($row_data[17]){
@@ -81,6 +88,9 @@ function omegavfa2mrpks_generate() {
                                 $fa_data = $data['xml'];
                                 $spracovavana_fa_cislo = $data['fa_cislo'];
                                 $mj_cena_s_bez_dan = "";
+                                if(isset($data['tax_code_set'])){
+                                  $tax_code_set = 1;
+                                }
                               }
                               break;
                             }
@@ -169,7 +179,6 @@ function create_faktura($row_data){
   $xml_data .= '<IssueDate>'.date_format($datum_vyst,'Y-m-d').'</IssueDate>';
   $xml_data .= '<CurrencyCode>'.substr($row_data[39],0,3).'</CurrencyCode>';
   $xml_data .= '<ValuesWithTax>F</ValuesWithTax>';
-  $xml_data .= '<TaxCode>10</TaxCode>';
 
 //overit ci je to c100
   switch($row_data[17]){
@@ -289,7 +298,7 @@ function create_faktura($row_data){
   $xml_data .= '<Phone>'.substr($row_data[83],0,30).'</Phone>';
   $xml_data .= '<Note>'.htmlspecialchars(substr($row_data[44],0,1024)).'</Note>';
 
-  $pattern = "/a\.s\.$|s\.r\.o\.$|v\.o\.s\.$|k\.s\.$/i";
+  $pattern = "/a\.[ ]*s\.$|s\.r\.o\.$|v\.o\.s\.$|k\.s\.$|štátny podnik$|spol\. s r\.o\.$/i";
   if(preg_match($pattern, trim($row_data[2]))){
     $person_type = 'F';
   }
@@ -299,6 +308,10 @@ function create_faktura($row_data){
   $xml_data .= '<NaturalPerson>'.$person_type.'</NaturalPerson>';
   $xml_data .= '</Company>';
 
+  if (substr(trim($row_data[47]),0,2) == "SK"){
+    $xml_data .= '<TaxCode>10</TaxCode>';
+    $data['tax_code_set']=1;
+  }
 
   $data['result'] = 0;
   $data['xml'] = $xml_data;
@@ -324,9 +337,11 @@ function create_polozka($row_data){
   switch(trim($row_data[9])){
     case 'K':
       $xml_data .= '<ItemType>T</ItemType>';
+      $data["tax_code"] = 13;
       break;
     case 'S':
       $xml_data .= '<ItemType>S</ItemType>';
+      $data["tax_code"] = 19;
       break;
   }
   
